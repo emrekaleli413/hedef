@@ -1,0 +1,6 @@
+{
+  "name": "SalesOps Intelligence",
+  "description": "Filo kiralama ve mobilite operasyonları için satış destek süreç yönetimi ve kural bazlı iş akışı otomasyon platformu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
