@@ -37,8 +37,6 @@ export interface TaskHistoryItem {
   action: string;
 }
 
-export type PortfolioMode = 'B2B' | 'B2C';
-
 export interface Task {
   id: string;
   title: string;
@@ -64,13 +62,6 @@ export interface Task {
   relatedDisputeId?: string;
   isOverdue?: boolean;
   isSlaBreached?: boolean;
-  // B2B vs. B2C Portfolio Mode
-  segment?: 'B2B' | 'B2C';
-  tckn?: string;
-  creditCardStatus?: 'Provizyon Başarılı' | 'Limit Yetersiz' | 'Kart Kapalı' | 'Provizyon Bekliyor';
-  drivingLicenseYears?: number;
-  rightOfWithdrawalDaysRemaining?: number;
-  findeksScore?: number;
 }
 
 export type QuotationType =
@@ -182,11 +173,6 @@ export interface Contract {
   hasRenewalTask: boolean;
   renewalTaskId?: string;
   monthlyRentAmount: number;
-  segment?: 'B2B' | 'B2C';
-  tckn?: string;
-  paymentMethod?: 'Kredi Kartı Otomatik Çekim' | 'DBS' | 'Banka Havalesi / Cari Hesap';
-  depositBlockedAmountTRY?: number;
-  rightOfWithdrawalDaysRemaining?: number;
 }
 
 export type DocumentCategory =
@@ -352,21 +338,13 @@ export interface CreditCheckRecord {
   availableLimitTRY: number;
   requiredCollateralType: 'Teminatsız / Açık Limit' | 'Banka Teminat Mektubu' | 'Doğrudan Borçlandırma (DBS)' | 'Müşterek Senet / Gayrimenkul İpoteği';
   requiredCollateralAmountTRY: number;
-  financialSummary?: {
+  financialSummary: {
     turnoverTRY: number;
     equityTRY: number;
     netProfitTRY: number;
     year: number;
   };
   evaluationOutcome: 'Fast-Track Onaylandı' | 'Komite Onayı Bekliyor' | 'Ek Teminat Şartlı' | 'Reddedildi';
-  // B2C Filomingo extension
-  segment?: 'B2B' | 'B2C';
-  tckn?: string;
-  findeksScore?: number;
-  drivingLicenseYears?: number;
-  creditCardLimitTRY?: number;
-  creditCardProvisionAmountTRY?: number;
-  eDevletVerificationStatus?: 'Doğrulandı' | 'Bekliyor' | 'Reddedildi';
 }
 
 // 3. Pre-billing Expense Matching (HGS & Traffic Fines)

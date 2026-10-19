@@ -345,34 +345,10 @@ export const TaskQueuePage: React.FC<TaskQueuePageProps> = ({
                         <div className="font-semibold text-slate-900 hover:text-blue-600 transition-colors">
                           {task.title}
                         </div>
-                        <div className="text-[11px] text-slate-500 flex flex-wrap items-center gap-1.5 mt-0.5">
+                        <div className="text-[11px] text-slate-500 flex items-center gap-1.5 mt-0.5">
                           <span className="font-medium text-slate-700">{task.customerRef}</span>
                           <span>·</span>
                           <span className="font-mono text-slate-400">{task.customerCode}</span>
-                          {task.tckn && (
-                            <span className="text-[10px] bg-rose-50 text-rose-700 border border-rose-200 px-1.5 py-0.2 rounded font-mono">
-                              TCKN: {task.tckn}
-                            </span>
-                          )}
-                          {task.findeksScore && (
-                            <span className="text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.2 rounded font-mono font-bold">
-                              Findeks: {task.findeksScore}
-                            </span>
-                          )}
-                          {task.creditCardStatus && (
-                            <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-semibold ${
-                              task.creditCardStatus === 'Provizyon Başarılı'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : 'bg-rose-50 text-rose-700 border border-rose-200'
-                            }`}>
-                              {task.creditCardStatus}
-                            </span>
-                          )}
-                          {task.rightOfWithdrawalDaysRemaining !== undefined && (
-                            <span className="text-[10px] bg-purple-50 text-purple-700 border border-purple-200 px-1.5 py-0.2 rounded font-mono font-semibold">
-                              14 Gün Cayma (Kalan: {task.rightOfWithdrawalDaysRemaining} gün)
-                            </span>
-                          )}
                         </div>
                       </td>
 
