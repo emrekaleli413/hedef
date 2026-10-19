@@ -218,8 +218,21 @@ export const ContractsPage: React.FC = () => {
                       {/* Customer & Fleet */}
                       <td className="py-2.5 px-3">
                         <div className="font-semibold text-slate-900">{c.customerRef}</div>
-                        <div className="text-[11px] text-slate-500 font-mono mt-0.5">
-                          {c.vehicleCount} Araçlık Filo · {c.customerCode}
+                        <div className="text-[11px] text-slate-500 font-mono mt-0.5 flex flex-wrap items-center gap-1">
+                          <span>{c.vehicleCount} Araç</span>
+                          <span>·</span>
+                          {c.tckn ? (
+                            <span className="text-[10px] bg-rose-50 text-rose-700 border border-rose-200 px-1 rounded">
+                              TCKN: {c.tckn}
+                            </span>
+                          ) : (
+                            <span>{c.customerCode}</span>
+                          )}
+                          {c.paymentMethod && (
+                            <span className="text-[10px] text-slate-600 bg-slate-100 px-1 rounded">
+                              {c.paymentMethod}
+                            </span>
+                          )}
                         </div>
                       </td>
 

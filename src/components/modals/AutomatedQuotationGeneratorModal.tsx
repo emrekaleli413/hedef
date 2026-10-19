@@ -169,40 +169,55 @@ export const AutomatedQuotationGeneratorModal: React.FC<AutomatedQuotationGenera
         ]
       };
     } else if (selectedType === 'Erken Araç İadesi') {
+      const isB2CWithdrawal =
+        selectedContract?.segment === 'B2C' &&
+        selectedContract.rightOfWithdrawalDaysRemaining !== undefined &&
+        selectedContract.rightOfWithdrawalDaysRemaining > 0;
+
       const monthlyLease = selectedContract ? selectedContract.monthlyRentAmount / selectedContract.vehicleCount : 25000;
       const totalRemainingLease = remainingMonths * monthlyLease;
-      const penaltyRate = settings.earlyReturnCompensationRatePercent || 35.0;
+      const penaltyRate = isB2CWithdrawal ? 0 : (settings.earlyReturnCompensationRatePercent || 35.0);
       const penaltyCharge = totalRemainingLease * (penaltyRate / 100);
-      const fixedFee = settings.earlyReturnFixedProcessingFee || 7500;
-      const refProvision = settings.earlyReturnRefurbishmentProvision || 12000;
+      const fixedFee = isB2CWithdrawal ? 2500 : (settings.earlyReturnFixedProcessingFee || 7500);
+      const refProvision = isB2CWithdrawal ? 3500 : (settings.earlyReturnRefurbishmentProvision || 12000);
 
       const subtotal = penaltyCharge + fixedFee + refProvision;
       const vatAmount = subtotal * (vatRate / 100);
       const grandTotal = subtotal + vatAmount;
 
       return {
-        formulaDescription: `Erken İade Bedeli = (Kalan Vade [${remainingMonths} Ay] × Aylık Kira [${monthlyLease.toLocaleString('tr-TR')} TL] × Fesih Oranı [%${penaltyRate}]) + Lojistik Bedeli (${fixedFee.toLocaleString('tr-TR')} TL) + Ekspertiz/Aşınma Karşılığı (${refProvision.toLocaleString('tr-TR')} TL)`,
+        formulaDescription: isB2CWithdrawal
+          ? `6502 Sayılı Tüketici Kanunu 14 Gün Yasal Cayma Süreci: Cezai Şart Uygulanmaz (0 TL) + Ekspertiz/Lojistik (${(fixedFee + refProvision).toLocaleString('tr-TR')} TL)`
+          : `Erken İade Bedeli = (Kalan Vade [${remainingMonths} Ay] × Aylık Kira [${monthlyLease.toLocaleString('tr-TR')} TL] × Fesih Oranı [%${penaltyRate}]) + Lojistik Bedeli (${fixedFee.toLocaleString('tr-TR')} TL) + Ekspertiz/Aşınma Karşılığı (${refProvision.toLocaleString('tr-TR')} TL)`,
         parametersApplied: {
+          'Müşteri Segmenti': selectedContract?.segment === 'B2C' ? 'Filomingo B2C Bireysel Kiralama' : 'Hedef Filo B2B Kurumsal Filo',
+          ...(isB2CWithdrawal ? { '6502 Yasal Cayma Hakkı': `Aktif (Kalan: ${selectedContract?.rightOfWithdrawalDaysRemaining} gün)` } : {}),
           'Kalan Vade': `${remainingMonths} Ay`,
           'Aylık Kira Bedeli': `${monthlyLease.toLocaleString('tr-TR')} TL`,
-          'Erken Fesih Tazminat Oranı': `%${penaltyRate}`,
+          'Erken Fesih Tazminat Oranı': isB2CWithdrawal ? '%0 (Yasal Cayma Muafiyeti)' : `%${penaltyRate}`,
           'Sabit Lojistik / De-fleeting Bedeli': `${fixedFee.toLocaleString('tr-TR')} TL`,
           'Ekspertiz ve Aşınma Karşılığı': `${refProvision.toLocaleString('tr-TR')} TL`,
           'KDV Oranı': `%${vatRate}`
         },
         itemizedCharges: [
           {
-            description: `Erken Sözleşme Fesih Tazminat Bedeli (Kalan ${remainingMonths} ay kirasının %${penaltyRate}'i)`,
-            calculationNote: 'Kalan tüm kira talep edilmeyip, yasal amortisman telafi oranı uygulanmıştır.',
+            description: isB2CWithdrawal
+              ? 'Yasal Tüketici Cayma Hakkı (6502 Sayılı Kanun Madde 9 - Cezai Şartsız Fesih)'
+              : `Erken Sözleşme Fesih Tazminat Bedeli (Kalan ${remainingMonths} ay kirasının %${penaltyRate}'i)`,
+            calculationNote: isB2CWithdrawal
+              ? 'Sözleşme başlangıcından itibaren 14 gün dolmadığından tüketiciden kalan aylara ait cezai tazminat talep edilemez.'
+              : 'Kalan tüm kira talep edilmeyip, yasal amortisman telafi oranı uygulanmıştır.',
             amountTRY: penaltyCharge
           },
           {
-            description: 'Lojistik, Plaka Kapanış ve De-fleeting İşlem Bedeli',
-            calculationNote: 'Sabit operasyonel de-fleeting maliyeti.',
+            description: isB2CWithdrawal
+              ? 'Araç Teslim Ekspertizi ve Ruhsat İptal / Kapanış Hizmet Bedeli'
+              : 'Lojistik, Plaka Kapanış ve De-fleeting İşlem Bedeli',
+            calculationNote: isB2CWithdrawal ? 'Tüketici teslim noktası operasyon bedeli.' : 'Sabit operasyonel de-fleeting maliyeti.',
             amountTRY: fixedFee
           },
           {
-            description: 'Ekspertiz ve İkinci El Amortisman Düzeltme Karşılığı',
+            description: 'Kullanım Süresi Yakıt & Ekspertiz Düzeltme Karşılığı',
             calculationNote: 'Yetkili servis ekspertiz raporu sonrası mahsuplaşılacaktır.',
             amountTRY: refProvision
           }
@@ -212,8 +227,12 @@ export const AutomatedQuotationGeneratorModal: React.FC<AutomatedQuotationGenera
         vatAmountTRY: vatAmount,
         grandTotalTRY: grandTotal,
         assumptions: [
-          'Kalan tüm kira vadeleri yerine yalnızca adil fesih tazminat oranı (%35) tahakkuk ettirilmiştir.',
-          'Fiili araç iadesinde bağımsız ekspertiz tutanağı düzenlenecek ve nihai hasar farkı netleştirilecektir.',
+          isB2CWithdrawal
+            ? '6502 Sayılı Tüketicinin Korunması Hakkında Kanun gereği 14 günlük yasal cayma süresi içinde cezai şart uygulanmamıştır.'
+            : 'Kalan tüm kira vadeleri yerine yalnızca adil fesih tazminat oranı (%35) tahakkuk ettirilmiştir.',
+          selectedContract?.depositBlockedAmountTRY
+            ? `Kredi kartından bloke edilen ${selectedContract.depositBlockedAmountTRY.toLocaleString('tr-TR')} TL depozito, araç teslim ekspertizi sonrası kart limitine iade edilecektir.`
+            : 'Fiili araç iadesinde bağımsız ekspertiz tutanağı düzenlenecek ve nihai hasar farkı netleştirilecektir.',
           'Hesaplanan bedeller temsilidir, sözleşme maddelerine göre nihai mutabakat esastır.'
         ]
       };
