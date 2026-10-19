@@ -6,7 +6,9 @@ import {
   Info,
   CheckCircle,
   AlertCircle,
-  X
+  X,
+  Building2,
+  UserCheck
 } from 'lucide-react';
 import { useSalesOps } from '../../context/SalesOpsContext';
 
@@ -23,7 +25,9 @@ export const TopBar: React.FC<TopBarProps> = ({
     activePage,
     notifications,
     dismissNotification,
-    runAllRulesEvaluation
+    runAllRulesEvaluation,
+    portfolioMode,
+    setPortfolioMode
   } = useSalesOps();
 
   const [showNotifications, setShowNotifications] = useState(false);
@@ -51,38 +55,72 @@ export const TopBar: React.FC<TopBarProps> = ({
         return 'Kurumsal Veri Kaynakları & Entegrasyon';
       case 'settings':
         return 'Sistem Parametreleri & Ayarlar';
+      case 'delivery':
+        return 'Teslimat & PDI Hazırlık Takibi';
+      case 'credit':
+        return portfolioMode === 'B2C'
+          ? 'Bireysel Findeks & TCKN İstihbaratı (Filomingo)'
+          : 'Kurumsal Finansal İstihbarat & KKB';
+      case 'prebilling':
+        return 'Toplu HGS & Ceza Ön Fatura Eşleştirici';
+      case 'customerportal':
+        return 'B2B Müşteri Self-Servis Portalı';
       default:
         return 'Operasyon Merkezi';
     }
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between gap-8 shrink-0 z-20">
+    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between gap-4 shrink-0 z-20">
       {/* Zone 1: Current Page Title & Context */}
       <div className="flex items-center gap-3 min-w-0">
         <h1 className="text-base font-bold text-slate-900 tracking-tight whitespace-nowrap truncate">
           {getPageTitle(activePage)}
         </h1>
         <span className="hidden md:inline-flex items-center text-xs text-slate-500 font-mono">
-          · 2026 Filo Satış Operasyonları
+          · {portfolioMode === 'B2C' ? 'Filomingo B2C Modu' : 'Hedef Filo B2B Modu'}
         </span>
       </div>
 
-      {/* Zone 2: System Status & Evaluation Shortcut */}
-      <div className="hidden lg:flex items-center gap-4 text-xs text-slate-600">
+      {/* Zone 2: Portfolio Mode Switcher (Hedef Filo B2B vs. Filomingo B2C) */}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
+          <button
+            onClick={() => setPortfolioMode('B2B')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+              portfolioMode === 'B2B'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+            title="Kurumsal Filo Kiralama (Hedef Filo Modeli: VKN, Bilanço, DBS, 10-100 Araç)"
+          >
+            <Building2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">B2B Kurumsal</span>
+            <span className="text-[10px] opacity-75 font-mono">(Hedef Filo)</span>
+          </button>
+          <button
+            onClick={() => setPortfolioMode('B2C')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+              portfolioMode === 'B2C'
+                ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+            title="Bireysel & KOBİ Online Kiralama (Filomingo Modeli: TCKN, Findeks, Kredi Kartı Provizyon, 1 Araç)"
+          >
+            <UserCheck className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">B2C Bireysel</span>
+            <span className="text-[10px] opacity-75 font-mono">(Filomingo)</span>
+          </button>
+        </div>
+
         <button
           onClick={() => runAllRulesEvaluation()}
-          className="flex items-center gap-1.5 px-2.5 py-1 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded text-xs font-medium transition-colors"
+          className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded text-xs font-medium transition-colors"
           title="Tüm kuralları yeniden değerlendir"
         >
           <Zap className="w-3.5 h-3.5 text-blue-600" />
           <span>Otomasyonu Tetikle</span>
         </button>
-        <span className="text-slate-300">|</span>
-        <div className="flex items-center gap-1.5 text-slate-500">
-          <Info className="w-3.5 h-3.5 text-slate-400" />
-          <span>Fiktif Demo Veri Seti</span>
-        </div>
       </div>
 
       {/* Zone 3: Actions & Notifications */}

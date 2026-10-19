@@ -18,7 +18,8 @@ import {
   DeliveryStepStatus,
   CreditCheckRecord,
   ExpenseDiscrepancyItem,
-  CustomerPortalRequest
+  CustomerPortalRequest,
+  PortfolioMode
 } from '../types';
 import {
   initialTasks,
@@ -44,6 +45,10 @@ interface NotificationMessage {
 }
 
 interface SalesOpsContextType {
+  // Portfolio Mode (B2B Hedef Filo vs. B2C Filomingo)
+  portfolioMode: PortfolioMode;
+  setPortfolioMode: (mode: PortfolioMode) => void;
+
   // Navigation & UI State
   activePage: string;
   setActivePage: (page: string) => void;
@@ -53,10 +58,12 @@ interface SalesOpsContextType {
   addNotification: (text: string, type?: 'info' | 'success' | 'warning') => void;
   dismissNotification: (id: string) => void;
 
-  // Data collections
+  // Data collections (Scoped to portfolioMode)
   tasks: Task[];
+  allTasks: Task[];
   quotations: Quotation[];
   contracts: Contract[];
+  allContracts: Contract[];
   documents: DocumentItem[];
   disputes: InvoiceDispute[];
   automationRules: AutomationRule[];
@@ -65,6 +72,7 @@ interface SalesOpsContextType {
   settings: SystemSettings;
   deliveryItems: DeliveryTrackerItem[];
   creditRecords: CreditCheckRecord[];
+  allCreditRecords: CreditCheckRecord[];
   expenseDiscrepancies: ExpenseDiscrepancyItem[];
   customerPortalRequests: CustomerPortalRequest[];
 
@@ -156,6 +164,22 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       type: 'warning'
     }
   ]);
+
+  const [portfolioMode, setPortfolioModeState] = useState<PortfolioMode>(() => {
+    const saved = localStorage.getItem(`${STORAGE_KEY}_portfolio_mode`);
+    return (saved === 'B2C' || saved === 'B2B') ? saved : 'B2B';
+  });
+
+  const setPortfolioMode = (mode: PortfolioMode) => {
+    setPortfolioModeState(mode);
+    localStorage.setItem(`${STORAGE_KEY}_portfolio_mode`, mode);
+    addNotification(
+      mode === 'B2C'
+        ? 'Filomingo B2C Bireysel Kiralama Moduna geçildi (TCKN, Findeks, Kredi Kartı).'
+        : 'Hedef Filo B2B Kurumsal Filo Moduna geçildi (VKN, Bilanço, DBS).',
+      'info'
+    );
+  };
 
   // Load state or default
   const [tasks, setTasks] = useState<Task[]>(() => {
@@ -259,6 +283,19 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY}_portal_reqs`, JSON.stringify(customerPortalRequests));
   }, [customerPortalRequests]);
+
+  // Scoped views based on active portfolio mode (B2B Hedef Filo vs. B2C Filomingo)
+  const scopedTasks = useMemo(() => {
+    return tasks.filter(t => !t.segment || t.segment === portfolioMode);
+  }, [tasks, portfolioMode]);
+
+  const scopedContracts = useMemo(() => {
+    return contracts.filter(c => !c.segment || c.segment === portfolioMode);
+  }, [contracts, portfolioMode]);
+
+  const scopedCreditRecords = useMemo(() => {
+    return creditRecords.filter(r => !r.segment || r.segment === portfolioMode);
+  }, [creditRecords, portfolioMode]);
 
   // Delivery methods
   const updateDeliveryStep = (itemId: string, stepId: string, status: DeliveryStepStatus) => {
@@ -413,7 +450,13 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       relatedQuoteId: data.relatedQuoteId,
       relatedDisputeId: data.relatedDisputeId,
       isOverdue: false,
-      isSlaBreached: false
+      isSlaBreached: false,
+      segment: data.segment || portfolioMode,
+      tckn: data.tckn,
+      creditCardStatus: data.creditCardStatus,
+      findeksScore: data.findeksScore,
+      drivingLicenseYears: data.drivingLicenseYears,
+      rightOfWithdrawalDaysRemaining: data.rightOfWithdrawalDaysRemaining
     };
 
     setTasks(prev => [newTask, ...prev]);
@@ -1029,22 +1072,22 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     addNotification('Demo veri seti sıfırlandı ve fabrika ayarlarına döndürüldü.', 'info');
   };
 
-  // Computed KPIs
+  // Computed KPIs based on active portfolio mode
   const totalOpenTasks = useMemo(() => {
-    return tasks.filter(t => t.status !== 'Tamamlandı' && t.status !== 'İptal').length;
-  }, [tasks]);
+    return scopedTasks.filter(t => t.status !== 'Tamamlandı' && t.status !== 'İptal').length;
+  }, [scopedTasks]);
 
   const overdueTasksCount = useMemo(() => {
-    return tasks.filter(t => t.isOverdue || (t.status !== 'Tamamlandı' && t.status !== 'İptal' && t.waitingDays >= 4)).length;
-  }, [tasks]);
+    return scopedTasks.filter(t => t.isOverdue || (t.status !== 'Tamamlandı' && t.status !== 'İptal' && t.waitingDays >= 4)).length;
+  }, [scopedTasks]);
 
   const waitingApprovalCount = useMemo(() => {
-    return tasks.filter(t => t.status === 'Onay Bekliyor').length;
-  }, [tasks]);
+    return scopedTasks.filter(t => t.status === 'Onay Bekliyor').length;
+  }, [scopedTasks]);
 
   const waitingExternalResponseCount = useMemo(() => {
-    return tasks.filter(t => t.status === 'Dış Yanıt Bekliyor').length;
-  }, [tasks]);
+    return scopedTasks.filter(t => t.status === 'Dış Yanıt Bekliyor').length;
+  }, [scopedTasks]);
 
   const monthlyQuotesCount = useMemo(() => {
     return quotations.length;
@@ -1059,8 +1102,8 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [quotations]);
 
   const upcomingRenewalsCount = useMemo(() => {
-    return contracts.filter(c => c.daysUntilRenewal <= settings.renewalWarningDays).length;
-  }, [contracts, settings.renewalWarningDays]);
+    return scopedContracts.filter(c => c.daysUntilRenewal <= settings.renewalWarningDays).length;
+  }, [scopedContracts, settings.renewalWarningDays]);
 
   const openDisputesCount = useMemo(() => {
     return disputes.filter(
@@ -1069,8 +1112,8 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [disputes]);
 
   const avgCompletionDays = useMemo(() => {
-    return 3.2; // demo calculated figure
-  }, []);
+    return portfolioMode === 'B2C' ? 0.8 : 3.2; // B2C is high volume instant approval
+  }, [portfolioMode]);
 
   const missingDocRiskScore = useMemo(() => {
     const totalImpact = documents.reduce((acc, curr) => acc + (curr.riskScoreImpact || 0), 0);
@@ -1086,6 +1129,8 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   return (
     <SalesOpsContext.Provider
       value={{
+        portfolioMode,
+        setPortfolioMode,
         activePage,
         setActivePage,
         selectedTaskId,
@@ -1093,9 +1138,11 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         notifications,
         addNotification,
         dismissNotification,
-        tasks,
+        tasks: scopedTasks,
+        allTasks: tasks,
         quotations,
-        contracts,
+        contracts: scopedContracts,
+        allContracts: contracts,
         documents,
         disputes,
         automationRules,
@@ -1103,7 +1150,8 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         teamMembers,
         settings,
         deliveryItems,
-        creditRecords,
+        creditRecords: scopedCreditRecords,
+        allCreditRecords: creditRecords,
         expenseDiscrepancies,
         customerPortalRequests,
         updateDeliveryStep,

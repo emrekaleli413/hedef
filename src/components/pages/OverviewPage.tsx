@@ -47,7 +47,9 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
     deliveryItems,
     creditRecords,
     expenseDiscrepancies,
-    customerPortalRequests
+    customerPortalRequests,
+    portfolioMode,
+    setPortfolioMode
   } = useSalesOps();
 
   const pendingDeliveries = deliveryItems.filter(i => i.overallStatus !== 'Teslim Edildi').length;
@@ -84,38 +86,70 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
     return { ...member, count };
   });
 
-  // Key bottlenecks
-  const bottlenecks = [
-    {
-      title: 'Müşteri Dış Yanıt Süresi',
-      detail: `${waitingExternalResponseCount} görev müşteri geri bildirimi / ekspertiz onayı bekliyor. Ortalama bekleme: 4.8 gün.`,
-      severity: 'high'
-    },
-    {
-      title: 'Zorunlu Sözleşme Evrakları',
-      detail: 'Yeni onaylanan 2 sözleşmede güncel imza sirküleri ve KKB onayı eksikliği teslimatı durduruyor.',
-      severity: 'medium'
-    },
-    {
-      title: 'Aşırı KM Telematik Mutabakatı',
-      detail: '25 araçlık kurye filosunda %35 aşım saptandı; zeyilname onayı gelmeden ek fatura kesilemiyor.',
-      severity: 'high'
-    }
-  ];
+  // Key bottlenecks based on B2B vs. B2C portfolio mode
+  const bottlenecks = portfolioMode === 'B2C'
+    ? [
+        {
+          title: 'Kredi Kartı Provizyon Blokajları',
+          detail: 'Sanal POS çekimlerinde limit yetersizliği nedeniyle provizyon bekleyen bireysel başvurular bulunuyor.',
+          severity: 'high'
+        },
+        {
+          title: 'Sürücü Belgesi 2 Yıl Kuralı',
+          detail: 'Kasko poliçesi asgari 2 yıl ehliyet şartına takılan başvurularda 2. sürücü veya kefil aranıyor.',
+          severity: 'medium'
+        },
+        {
+          title: '14 Gün Yasal Tüketici Cayma Süreci',
+          detail: '6502 sayılı kanun kapsamında cayma hakkını kullanan müşterilerin araç iade ve depozito iadesi inceleniyor.',
+          severity: 'high'
+        }
+      ]
+    : [
+        {
+          title: 'Müşteri Dış Yanıt Süresi',
+          detail: `${waitingExternalResponseCount} görev müşteri geri bildirimi / ekspertiz onayı bekliyor. Ortalama bekleme: 4.8 gün.`,
+          severity: 'high'
+        },
+        {
+          title: 'Zorunlu Sözleşme Evrakları',
+          detail: 'Yeni onaylanan 2 sözleşmede güncel imza sirküleri ve KKB onayı eksikliği teslimatı durduruyor.',
+          severity: 'medium'
+        },
+        {
+          title: 'Aşırı KM Telematik Mutabakatı',
+          detail: '25 araçlık kurye filosunda %35 aşım saptandı; zeyilname onayı gelmeden ek fatura kesilemiyor.',
+          severity: 'high'
+        }
+      ];
 
   return (
     <div className="space-y-6">
-      {/* Top Banner & Quick Actions */}
-      <div className="bg-white border border-slate-200 rounded-lg p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      {/* Top Banner & Quick Actions with Mode Switcher Banner */}
+      <div className={`border rounded-lg p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors ${
+        portfolioMode === 'B2C'
+          ? 'bg-gradient-to-r from-rose-50/70 via-white to-pink-50/50 border-rose-200'
+          : 'bg-white border-slate-200'
+      }`}>
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-900 text-lg">Operasyonel Komuta Masası</span>
-            <span className="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded font-mono">
-              Canlı Takip
+            <span className="font-bold text-slate-900 text-lg">
+              {portfolioMode === 'B2C'
+                ? 'Filomingo Modeli — B2C Bireysel Kiralama Komuta Masası'
+                : 'Hedef Filo Modeli — B2B Kurumsal Filo Komuta Masası'}
+            </span>
+            <span className={`text-xs px-2.5 py-0.5 rounded font-mono font-semibold border ${
+              portfolioMode === 'B2C'
+                ? 'bg-rose-100 text-rose-800 border-rose-300'
+                : 'bg-blue-50 text-blue-700 border-blue-200'
+            }`}>
+              {portfolioMode === 'B2C' ? 'B2C Bireysel & KOBİ' : 'B2B Kurumsal Filo'}
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
-            Filo satış destek süreçleri, teklif dönüşüm oranları, sözleşme yenileme pencereleri ve bekleyen SLA eskalasyonları tek merkezden yönetilmektedir.
+          <p className="text-xs text-slate-600 mt-1 max-w-3xl leading-relaxed">
+            {portfolioMode === 'B2C'
+              ? 'Tekil araçlık bireysel abonelikler, TCKN Findeks kredi notu sorguları, kredi kartı provizyon hataları, E-Devlet sürücü belgesi onayları ve 6502 Sayılı Tüketici Kanunu 14 gün cayma süreçleri tek merkezden yönetilmektedir.'
+              : 'Kurumsal filo satış destek süreçleri, VKN ve KKB limitleri, sözleşme yenileme pencereleri, toplu HGS mutabakatı ve bekleyen SLA eskalasyonları tek merkezden yönetilmektedir.'}
           </p>
         </div>
         <div className="flex items-center gap-2.5 shrink-0">
@@ -129,10 +163,14 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           {/* Section 16 Priority Feature: Prominent Yeni Teklif Oluştur button */}
           <button
             onClick={onOpenNewQuote}
-            className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-bold shadow-sm transition-colors"
+            className={`flex items-center gap-1.5 px-4 py-2 text-white rounded text-xs font-bold shadow-sm transition-colors ${
+              portfolioMode === 'B2C'
+                ? 'bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700'
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
           >
             <Plus className="w-4 h-4" />
-            <span>Yeni Teklif Oluştur</span>
+            <span>{portfolioMode === 'B2C' ? 'Bireysel Teklif Oluştur' : 'Yeni Teklif Oluştur'}</span>
           </button>
         </div>
       </div>
