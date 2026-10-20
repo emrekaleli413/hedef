@@ -11,7 +11,11 @@ import {
   DeliveryTrackerItem,
   CreditCheckRecord,
   ExpenseDiscrepancyItem,
-  CustomerPortalRequest
+  CustomerPortalRequest,
+  ContractClauseTemplate,
+  ContractVaultDocument,
+  ContractComplianceAlert,
+  SupplierContract
 } from '../types';
 
 export const initialTeamMembers: TeamMember[] = [
@@ -647,7 +651,27 @@ export const initialContracts: Contract[] = [
     churnRisk: 'Düşük',
     hasRenewalTask: true,
     renewalTaskId: 'TSK-1041',
-    monthlyRentAmount: 312000
+    monthlyRentAmount: 312000,
+    clmStage: 'active_in_force',
+    terminationNoticeDays: 60,
+    terminationConditions: 'Sözleşme hitamından en az 60 gün önce yazılı bildirim yapılmadığı takdirde sözleşme 12 ay aynı şartlarla yenilenir.',
+    renewalConditions: 'Yıllık TÜFE-ÜFE ortalaması oranında revizyonla 12/24 ay uzatma opsiyonu mevcuttur.',
+    earlyTerminationPenaltyRate: 30,
+    soficoContractId: 'SOF-KNT-7821',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-20 09:30',
+    paperworkFolderId: 'PW-KNT-7821',
+    paperworkDocCount: 4,
+    responsibleDepartment: 'Kurumsal Satış Direktörlüğü',
+    internalNotes: [
+      '2026 Q3 Ara kilometre denetimi yapıldı, filo kullanım sapması normal sınırlar içerisinde.',
+      'Müşteri filo müdürü hibrit veya EV modellere geçiş için simülasyon talep etti.'
+    ],
+    linkedAmendments: [
+      { id: 'ZY-7821-01', title: 'Ek Taşıt Dahil Etme Zeyilnamesi (+3 Araç)', date: '2025-06-10', type: 'Filo Artırımı', status: 'Yürürlükte' },
+      { id: 'ZY-7821-02', title: 'Yıllık KM Limit Revizyon Zeyilnamesi', date: '2026-02-14', type: 'Kilometre Uyarlama', status: 'Yürürlükte' }
+    ],
+    missingDocuments: []
   },
   {
     id: 'KNT-7822',
@@ -667,7 +691,26 @@ export const initialContracts: Contract[] = [
     projectedOverKmPercent: 0,
     churnRisk: 'Orta',
     hasRenewalTask: false,
-    monthlyRentAmount: 36000
+    monthlyRentAmount: 36000,
+    clmStage: 'addendum_in_review',
+    terminationNoticeDays: 30,
+    terminationConditions: 'Erken fesih halinde kalan vadenin kira toplamının %35\'i cezai şart olarak fatura edilir.',
+    renewalConditions: 'Sözleşme fesih ve erken iade sürecindedir, yenileme opsiyonu kapatılmıştır.',
+    earlyTerminationPenaltyRate: 35,
+    soficoContractId: 'SOF-KNT-7822',
+    soficoSyncStatus: 'pending',
+    lastSoficoSync: '2026-10-18 16:20',
+    paperworkFolderId: 'PW-KNT-7822',
+    paperworkDocCount: 3,
+    responsibleDepartment: 'Müşteri İlişkileri & İade Masası',
+    internalNotes: [
+      'Erken iade talep dilekçesi alındı, TÜV SÜD ekspertiz randevusu oluşturuldu.',
+      'İmza sirküleri süresi dolduğundan güncelleme talep edildi.'
+    ],
+    linkedAmendments: [
+      { id: 'ZY-7822-01', title: 'Erken İade & İbra Protokolü Taslağı', date: '2026-10-15', type: 'Erken Fesih', status: 'İncelemede' }
+    ],
+    missingDocuments: ['Güncel Noter Onaylı İmza Sirküleri']
   },
   {
     id: 'KNT-7823',
@@ -687,7 +730,23 @@ export const initialContracts: Contract[] = [
     projectedOverKmPercent: 6.5,
     churnRisk: 'Düşük',
     hasRenewalTask: false,
-    monthlyRentAmount: 184000
+    monthlyRentAmount: 184000,
+    clmStage: 'renewal_pending',
+    terminationNoticeDays: 60,
+    terminationConditions: 'Sözleşme hitamından en az 60 gün önce yazılı bildirim yapılmalıdır. (DİKKAT: Fesih ihbar penceresi süresi dolmuştur!)',
+    renewalConditions: '12 ay otomatik süre uzatımı veya yeni model araç değişimi protokolü.',
+    earlyTerminationPenaltyRate: 30,
+    soficoContractId: 'SOF-KNT-7823',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-20 10:45',
+    paperworkFolderId: 'PW-KNT-7823',
+    paperworkDocCount: 5,
+    responsibleDepartment: 'Kurumsal Satış Direktörlüğü',
+    internalNotes: [
+      'Müşteri ile T-45 gün görüşmesi olumlu geçti, filo büyütme talebi var.'
+    ],
+    linkedAmendments: [],
+    missingDocuments: []
   },
   {
     id: 'KNT-7824',
@@ -708,7 +767,25 @@ export const initialContracts: Contract[] = [
     churnRisk: 'Düşük',
     hasRenewalTask: true,
     renewalTaskId: 'TSK-1043',
-    monthlyRentAmount: 510000
+    monthlyRentAmount: 510000,
+    clmStage: 'addendum_in_review',
+    terminationNoticeDays: 90,
+    terminationConditions: '90 gün öncesinden fesih ihbarı ve kilometre aşım mutabakatı gereklidir.',
+    renewalConditions: 'KM baremi 150.000 KM\'ye yükseltilerek aylık kira bedelinin revizyonu.',
+    earlyTerminationPenaltyRate: 25,
+    soficoContractId: 'SOF-KNT-7824',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-20 08:15',
+    paperworkFolderId: 'PW-KNT-7824',
+    paperworkDocCount: 6,
+    responsibleDepartment: 'Lojistik & E-Ticaret Filo Masası',
+    internalNotes: [
+      'Aşırı kilometre birikimi yüksek, zeyilname taslağı hazırlandı.'
+    ],
+    linkedAmendments: [
+      { id: 'ZY-7824-01', title: 'Aşırı Kilometre Limit Revizyon Zeyilnamesi', date: '2026-10-18', type: 'KM Tolerans Revizyonu', status: 'İmza Bekliyor' }
+    ],
+    missingDocuments: []
   },
   {
     id: 'KNT-7825',
@@ -728,7 +805,23 @@ export const initialContracts: Contract[] = [
     projectedOverKmPercent: 8.0,
     churnRisk: 'Düşük',
     hasRenewalTask: false,
-    monthlyRentAmount: 165000
+    monthlyRentAmount: 165000,
+    clmStage: 'active_in_force',
+    terminationNoticeDays: 60,
+    terminationConditions: 'Sözleşme hitamından 60 gün önce yazılı bildirim esastır. İhbar süresi T-43 güne inmiştir.',
+    renewalConditions: 'Yıllık TÜFE bazlı kira revizyonu ile 24 ay uzatma opsiyonu.',
+    earlyTerminationPenaltyRate: 30,
+    soficoContractId: 'SOF-KNT-7825',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-19 14:10',
+    paperworkFolderId: 'PW-KNT-7825',
+    paperworkDocCount: 4,
+    responsibleDepartment: 'Kurumsal Satış Direktörlüğü',
+    internalNotes: [
+      'Araçlar temiz kullanılmış, bakım geçmişi eksiksiz.'
+    ],
+    linkedAmendments: [],
+    missingDocuments: []
   },
   {
     id: 'KNT-7826',
@@ -748,7 +841,25 @@ export const initialContracts: Contract[] = [
     projectedOverKmPercent: 1.2,
     churnRisk: 'Düşük',
     hasRenewalTask: false,
-    monthlyRentAmount: 172000
+    monthlyRentAmount: 172000,
+    clmStage: 'renewal_pending',
+    terminationNoticeDays: 30,
+    terminationConditions: 'Sözleşme bitiminden 30 gün önce bildirim yapılmalıdır.',
+    renewalConditions: 'TKF-2026-092 teklifi şartlarıyla 24 ay yenileme.',
+    earlyTerminationPenaltyRate: 30,
+    soficoContractId: 'SOF-KNT-7826',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-20 11:15',
+    paperworkFolderId: 'PW-KNT-7826',
+    paperworkDocCount: 5,
+    responsibleDepartment: 'Büyük Müşteriler Departmanı',
+    internalNotes: [
+      'Müşteri yönetim kurulu teklifi onayladı, ıslak/e-imza aşamasına geçildi.'
+    ],
+    linkedAmendments: [
+      { id: 'ZY-7826-01', title: 'Sözleşme Süre Uzatım Protokolü (2026-2028)', date: '2026-10-18', type: 'Sözleşme Yenileme', status: 'İmzada' }
+    ],
+    missingDocuments: []
   },
   {
     id: 'KNT-7827',
@@ -769,7 +880,23 @@ export const initialContracts: Contract[] = [
     churnRisk: 'Orta',
     hasRenewalTask: false,
     monthlyRentAmount: 290000,
-    segment: 'B2B'
+    segment: 'B2B',
+    clmStage: 'active_in_force',
+    terminationNoticeDays: 60,
+    terminationConditions: '60 gün önceden yazılı fesih ihbarı ve kalan kira bedelinin %30\'u tazminat şartı.',
+    renewalConditions: 'Hibrit batarya sağlığı kontrolü yapılarak 12 ay ek süre opsiyonu.',
+    earlyTerminationPenaltyRate: 30,
+    soficoContractId: 'SOF-KNT-7827',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-19 11:30',
+    paperworkFolderId: 'PW-KNT-7827',
+    paperworkDocCount: 4,
+    responsibleDepartment: 'Kurumsal Satış Direktörlüğü',
+    internalNotes: [
+      'Telematik verilerine göre araçlar ortalama 150 km/gün yol yapmaktadır.'
+    ],
+    linkedAmendments: [],
+    missingDocuments: []
   },
   // B2C Bireysel Kiralama (Filomingo Modeli) Sözleşmeleri
   {
@@ -794,7 +921,21 @@ export const initialContracts: Contract[] = [
     segment: 'B2C',
     tckn: '29182049182',
     paymentMethod: 'Kredi Kartı Otomatik Çekim',
-    depositBlockedAmountTRY: 20000
+    depositBlockedAmountTRY: 20000,
+    clmStage: 'active_in_force',
+    terminationNoticeDays: 30,
+    terminationConditions: 'Tüketici koruma mevzuatı gereği 30 gün önceden bildirim ile erken iade hakkı mevcuttur.',
+    renewalConditions: 'Yıllık TÜFE oranında kira güncellemesi ile 12 ay uzatma.',
+    earlyTerminationPenaltyRate: 20,
+    soficoContractId: 'SOF-B2C-019',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-20 09:00',
+    paperworkFolderId: 'PW-B2C-019',
+    paperworkDocCount: 3,
+    responsibleDepartment: 'Bireysel Kiralama (Filomingo)',
+    internalNotes: ['Tahsilat performansı mükemmel, provizyon blokajı aktif.'],
+    linkedAmendments: [],
+    missingDocuments: []
   },
   {
     id: 'KNT-B2C-02',
@@ -819,7 +960,21 @@ export const initialContracts: Contract[] = [
     tckn: '55102938471',
     paymentMethod: 'Kredi Kartı Otomatik Çekim',
     depositBlockedAmountTRY: 15000,
-    rightOfWithdrawalDaysRemaining: 4
+    rightOfWithdrawalDaysRemaining: 4,
+    clmStage: 'negotiation',
+    terminationNoticeDays: 14,
+    terminationConditions: '6502 sayılı Tüketicinin Korunması Hakkında Kanun uyarınca 14 gün koşulsuz cayma hakkı.',
+    renewalConditions: 'Cayma süresi sonrasında standart 12 ay taahhüt.',
+    earlyTerminationPenaltyRate: 0,
+    soficoContractId: 'SOF-B2C-042',
+    soficoSyncStatus: 'pending',
+    lastSoficoSync: '2026-10-18 10:20',
+    paperworkFolderId: 'PW-B2C-042',
+    paperworkDocCount: 2,
+    responsibleDepartment: 'Bireysel Kiralama (Filomingo)',
+    internalNotes: ['Cayma hakkı dilekçesi değerlendiriliyor.'],
+    linkedAmendments: [],
+    missingDocuments: []
   },
   {
     id: 'KNT-B2C-03',
@@ -843,7 +998,126 @@ export const initialContracts: Contract[] = [
     segment: 'B2C',
     tckn: '10492817290',
     paymentMethod: 'Kredi Kartı Otomatik Çekim',
-    depositBlockedAmountTRY: 25000
+    depositBlockedAmountTRY: 25000,
+    clmStage: 'internal_review',
+    terminationNoticeDays: 30,
+    terminationConditions: '30 gün öncesinden fesih bildirimi, 2 aylık kira cezai şart.',
+    renewalConditions: 'Süre bitiminde batarya ekspertizi yapılarak uzatma.',
+    earlyTerminationPenaltyRate: 20,
+    soficoContractId: 'SOF-B2C-077',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-19 17:00',
+    paperworkFolderId: 'PW-B2C-077',
+    paperworkDocCount: 3,
+    responsibleDepartment: 'Bireysel Kiralama (Filomingo)',
+    internalNotes: ['Şarj kartı ve ev tipi wallbox kiti teslim edildi.'],
+    linkedAmendments: [],
+    missingDocuments: []
+  },
+  {
+    id: 'KNT-7828',
+    customerRef: 'Pegasus Hava Taşımacılığı A.Ş.',
+    customerCode: 'CUST-810',
+    vehicleModel: 'Renault Megane Sedan 1.3 TCe Icon EDC',
+    plate: '34 PGS 101 (Filo: 15 Araç)',
+    vehicleCount: 15,
+    startDate: '2026-11-01',
+    endDate: '2029-11-01',
+    renewalStatus: 'Görüşülüyor',
+    assignedOwner: 'Deniz Yılmaz',
+    nextAction: 'Sözleşme taslağı hazırlandı, hukuk & finans incelemesine iletilecek',
+    daysUntilRenewal: 1100,
+    contractLimitKm: 90000,
+    currentOdometerKm: 0,
+    projectedOverKmPercent: 0,
+    churnRisk: 'Düşük',
+    hasRenewalTask: false,
+    monthlyRentAmount: 435000,
+    segment: 'B2B',
+    clmStage: 'draft',
+    terminationNoticeDays: 90,
+    terminationConditions: '90 gün yazılı bildirim, kalan kira tutarının %30\'u tazminat.',
+    renewalConditions: '36 ay sonunda 12 ay uzatma veya sıfır filo ikamesi.',
+    earlyTerminationPenaltyRate: 30,
+    soficoContractId: 'SOF-KNT-7828',
+    soficoSyncStatus: 'pending',
+    lastSoficoSync: '2026-10-20 08:00',
+    paperworkFolderId: 'PW-KNT-7828',
+    paperworkDocCount: 2,
+    responsibleDepartment: 'Büyük Müşteriler Departmanı',
+    internalNotes: ['Sözleşme taslağı hukuk departmanında inceleniyor.'],
+    linkedAmendments: [],
+    missingDocuments: []
+  },
+  {
+    id: 'KNT-7829',
+    customerRef: 'Migros Ticaret A.Ş.',
+    customerCode: 'CUST-920',
+    vehicleModel: 'Ford Transit Custom 320L 2.0 EcoBlue',
+    plate: '34 MGR 550 (Filo: 20 Araç)',
+    vehicleCount: 20,
+    startDate: '2026-11-15',
+    endDate: '2029-11-15',
+    renewalStatus: 'Görüşülüyor',
+    assignedOwner: 'Burak Kaya',
+    nextAction: 'Özel teminat mektubu klozları Hukuk Müşavirliği incelemesinde',
+    daysUntilRenewal: 1115,
+    contractLimitKm: 120000,
+    currentOdometerKm: 0,
+    projectedOverKmPercent: 0,
+    churnRisk: 'Düşük',
+    hasRenewalTask: false,
+    monthlyRentAmount: 620000,
+    segment: 'B2B',
+    clmStage: 'internal_review',
+    terminationNoticeDays: 90,
+    terminationConditions: '90 gün önceden yazılı bildirim.',
+    renewalConditions: 'Ticari araç yıpranma katsayısı revizyonu ile yıllık yenileme.',
+    earlyTerminationPenaltyRate: 25,
+    soficoContractId: 'SOF-KNT-7829',
+    soficoSyncStatus: 'pending',
+    lastSoficoSync: '2026-10-19 15:40',
+    paperworkFolderId: 'PW-KNT-7829',
+    paperworkDocCount: 3,
+    responsibleDepartment: 'Lojistik & Ticari Filo Masası',
+    internalNotes: ['Teminat mektubu metni banka ile mutabakat halinde.'],
+    linkedAmendments: [],
+    missingDocuments: ['Banka Teminat Mektubu Aslı']
+  },
+  {
+    id: 'KNT-7830',
+    customerRef: 'Yıldız Holding A.Ş.',
+    customerCode: 'CUST-414',
+    vehicleModel: 'Volkswagen Tiguan 1.5 eTSI Elegance DSG',
+    plate: '34 YLD 202 (Filo: 8 Araç)',
+    vehicleCount: 8,
+    startDate: '2026-10-25',
+    endDate: '2028-10-25',
+    renewalStatus: 'Görüşülüyor',
+    assignedOwner: 'Deniz Yılmaz',
+    nextAction: 'Taraflar mutabık kaldı; E-İmza & KEP onay sürecinde',
+    daysUntilRenewal: 730,
+    contractLimitKm: 60000,
+    currentOdometerKm: 0,
+    projectedOverKmPercent: 0,
+    churnRisk: 'Düşük',
+    hasRenewalTask: false,
+    monthlyRentAmount: 392000,
+    segment: 'B2B',
+    clmStage: 'signature_pending',
+    terminationNoticeDays: 60,
+    terminationConditions: '60 gün yazılı bildirim.',
+    renewalConditions: '24 ay vade bitiminde güncel filo kiralama tarifesi üzerinden uzatma.',
+    earlyTerminationPenaltyRate: 30,
+    soficoContractId: 'SOF-KNT-7830',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-20 11:20',
+    paperworkFolderId: 'PW-KNT-7830',
+    paperworkDocCount: 4,
+    responsibleDepartment: 'Kurumsal Satış Direktörlüğü',
+    internalNotes: ['Yönetici tahsis araçları, teslimat randevusu belirlendi.'],
+    linkedAmendments: [],
+    missingDocuments: []
   }
 ];
 
@@ -1488,4 +1762,584 @@ export const initialCustomerPortalRequests: CustomerPortalRequest[] = [
     contactPerson: 'Serdar Güven (İdari İşler Müdürü)'
   }
 ];
+
+export const initialClauseTemplates: ContractClauseTemplate[] = [
+  {
+    id: 'CLS-01',
+    category: 'mileage',
+    code: 'MADDE-KM-01',
+    title: 'Standart Aşırı KM Toleransı ve Birim Ceza Tarifesi',
+    standardText: 'Kiracı, sözleşmede kararlaştırılan yıllık kilometre limitini aşmayacağını taahhüt eder. Kira süresi sonunda veya yıllık periyotlarda yapılacak KM okumasında, sözleşme limitinin %5\'ine kadar olan aşımlar tolerans dahilinde kabul edilir. %5\'i aşan her 1 (bir) kilometre için filo segmentine göre belirlenen birim aşım bedeli (KDV hariç) Kiralayana derhal ve defaten ödenecektir.',
+    riskLevel: 'standard',
+    legalApprovedDate: '2026-01-15',
+    approvedBy: 'Av. Zeynep Koç (Hukuk Müşaviri)',
+    applicableQuotationTypes: ['excess_mileage']
+  },
+  {
+    id: 'CLS-02',
+    category: 'mileage',
+    code: 'MADDE-KM-02',
+    title: 'Filo Çapı Havuzlama ve KM Mahsuplaşma Klozu',
+    standardText: 'Kiracının aynı çerçeve sözleşme kapsamında kiraladığı 10 ve üzeri araçlık filolarda, sözleşme bitiminde araçların toplam kilometresi havuzlanarak kümülatif değerlendirilir. Limitin altında kalan araçların eksi kilometresi, limiti aşan araçların artı kilometresinden mahsup edilecek; net bakiye artı çıkarsa sadece aradaki net aşım faturalandırılacaktır.',
+    riskLevel: 'moderate',
+    legalApprovedDate: '2026-03-20',
+    approvedBy: 'Av. Mehmet Baran (Finans Hukuku)',
+    applicableQuotationTypes: ['excess_mileage']
+  },
+  {
+    id: 'CLS-03',
+    category: 'termination',
+    code: 'MADDE-İAD-01',
+    title: 'Erken Araç İadesi Amortisman ve Tazminat Bedeli',
+    standardText: 'Kiracının sözleşme süresi dolmadan aracı iade etmek istemesi halinde; kalan aylara ait kira bedelleri toplamının %35\'i oranında erken fesih tazminatı, aracın ekspertiz durumuna göre belirlenecek yıpranma bedeli ve lojistik/teslim alma operasyon gideri hesaplanarak zeyilname ile tahakkuk ettirilir. Tahakkuk eden bedel ödendikten sonra sözleşme karşılıklı ibra ile sonlandırılır.',
+    riskLevel: 'standard',
+    legalApprovedDate: '2026-02-10',
+    approvedBy: 'Av. Zeynep Koç (Hukuk Müşaviri)',
+    applicableQuotationTypes: ['early_return']
+  },
+  {
+    id: 'CLS-04',
+    category: 'termination',
+    code: 'MADDE-İAD-02',
+    title: 'Mücbir Sebep ve Proje İptali Halinde Erken Fesih',
+    standardText: 'Kiracının kamu ihale iptali, şirketin tasfiyesi veya mücbir sebepler dolayısıyla sözleşmeyi tek taraflı feshetmesi durumunda; resmi belgelerin tevsiki kaydıyla standart cezai şart uygulanmaz, yalnızca kiralayanın katlandığı doğrudan finansman maliyetleri ve varsa araç hasar ekspertiz farkı tazmin edilir.',
+    riskLevel: 'high_risk',
+    legalApprovedDate: '2026-04-05',
+    approvedBy: 'Hukuk Kurulu',
+    applicableQuotationTypes: ['early_return']
+  },
+  {
+    id: 'CLS-05',
+    category: 'indexation',
+    code: 'MADDE-YEN-01',
+    title: 'Sözleşme Süresi Uzatma & TÜFE/ÜFE Endeksli Kira Yenileme',
+    standardText: 'Sözleşme bitiminden en az 30 gün önce taraflarca aksi yazılı olarak bildirilmediği takdirde, sözleşme aynı koşullarla 12 ay süreyle uzatılabilir. Yenileme döneminde aylık kira bedeli, TÜİK tarafından açıklanan son 12 aylık TÜFE ve Yİ-ÜFE ortalaması oranında revize edilir ve yeni ödeme planı zeyilname ile yürürlüğe girer.',
+    riskLevel: 'standard',
+    legalApprovedDate: '2026-01-20',
+    approvedBy: 'Av. Zeynep Koç (Hukuk Müşaviri)',
+    applicableQuotationTypes: ['contract_renewal']
+  },
+  {
+    id: 'CLS-06',
+    category: 'insurance',
+    code: 'MADDE-KSK-01',
+    title: 'Kasko Muafiyet Sınırı ve Pert / Çalınma Mutabakatı',
+    standardText: 'Kiralanan tüm araçlar tam kasko ve mali mesuliyet sigortası teminatı altındadır. Sürücü kusurundan kaynaklanan tek taraflı kazalarda ve beyansız hasarlarda sözleşmede belirtilen azami muafiyet tutarı (araç kasko değerinin %2\'si) Kiracıya rücu edilir. Tam ziya (pert) veya çalınma halinde sigorta tazminatı Kiralayana ödenecek, Kiracının kalan kira yükümlülüğü sona erecektir.',
+    riskLevel: 'standard',
+    legalApprovedDate: '2026-02-28',
+    approvedBy: 'Sigorta & Hukuk Komitesi'
+  },
+  {
+    id: 'CLS-07',
+    category: 'maintenance',
+    code: 'MADDE-BAK-01',
+    title: 'Yetkili Servis Bakım, Lastik Değişimi ve İkame Araç Temini',
+    standardText: 'Araçların periyodik üretici bakımları, aşınan parça değişimleri ve kış/yaz lastik değişimleri Kiralayanın anlaşmalı yetkili servislerinde bedelsiz sağlanır. Bakım veya hasar onarım süresinin kesintisiz 24 saati aşması halinde, derhal muadil segmentte ikame araç Kiracıya teslim edilir.',
+    riskLevel: 'standard',
+    legalApprovedDate: '2026-03-01',
+    approvedBy: 'Operasyon Direktörlüğü'
+  },
+  {
+    id: 'CLS-08',
+    category: 'general',
+    code: 'MADDE-KUR-01',
+    title: 'Döviz Kuru ve Finansman Maliyeti Risk Paylaşım Klozu',
+    standardText: 'Merkez Bankası gösterge döviz sepeti veya mevduat faiz oranlarında sözleşme imza tarihindeki baz seviyeye kıyasla %25 ve üzeri sapma gerçekleşmesi halinde, taraflar sözleşmenin finansal dengesini korumak amacıyla bir araya gelerek kira bedelini iyi niyet kuralları çerçevesinde yeniden müzakere etmeyi kabul ederler.',
+    riskLevel: 'moderate',
+    legalApprovedDate: '2026-05-12',
+    approvedBy: 'Hukuk ve Risk Komitesi'
+  }
+];
+
+export const initialVaultDocuments: ContractVaultDocument[] = [
+  {
+    id: 'DOC-VLT-101',
+    contractId: 'KNT-7824',
+    customerRef: 'Trendyol Express Filo Operasyonları',
+    docType: 'master_contract',
+    title: 'Uzun Dönem Operasyonel Taşıt Kiralama Çerçeve Sözleşmesi',
+    fileName: 'trendyol_cerceve_sozlesme_knt7824.pdf',
+    uploadedAt: '2024-06-01',
+    fileSize: '4.8 MB',
+    status: 'valid',
+    signedDate: '2024-05-28',
+    expiryDate: '2027-06-01',
+    notes: 'Islak imzalı ve KEP onaylı ana metin. 25 adet Courier aracı kapsar.'
+  },
+  {
+    id: 'DOC-VLT-102',
+    contractId: 'KNT-7824',
+    customerRef: 'Trendyol Express Filo Operasyonları',
+    docType: 'guarantee_letter',
+    title: 'Kesin ve Süresiz Banka Teminat Mektubu (İş Bankası)',
+    fileName: 'isbank_teminat_mektubu_trendyol_750k.pdf',
+    uploadedAt: '2024-06-03',
+    fileSize: '1.4 MB',
+    status: 'expiring_soon',
+    signedDate: '2024-06-02',
+    expiryDate: '2026-11-15',
+    notes: '750.000 TL bedelli. Vadeye T-26 gün kaldı, yenileme veya teyit yazısı istenmeli.'
+  },
+  {
+    id: 'DOC-VLT-103',
+    contractId: 'KNT-7824',
+    customerRef: 'Trendyol Express Filo Operasyonları',
+    docType: 'delivery_protocol',
+    title: '25 Araç Toplu Teslim-Tesellüm & Odometre Başlangıç Tutanağı',
+    fileName: 'trendyol_25_arac_teslim_tutanaklari.pdf',
+    uploadedAt: '2024-06-05',
+    fileSize: '6.2 MB',
+    status: 'valid',
+    signedDate: '2024-06-05',
+    notes: 'Tüm araçların 0 KM teslim edildiğine dair müşteri filo şefi ıslak imzalı tutanağı.'
+  },
+  {
+    id: 'DOC-VLT-104',
+    contractId: 'KNT-7822',
+    customerRef: 'Ekol Uluslararası Taşımacılık',
+    docType: 'signature_circular',
+    title: 'Noter Onaylı Şirket İmza Sirküleri & Ticaret Sicil',
+    fileName: 'ekol_tasimacilik_imza_sirkuleri_2024.pdf',
+    uploadedAt: '2024-07-15',
+    fileSize: '2.9 MB',
+    status: 'expired',
+    signedDate: '2024-07-10',
+    expiryDate: '2026-09-30',
+    notes: 'İmza sirkülerinin süresi dolmuş. Erken iade zeyilnamesi imzalanmadan önce güncel sirküler talep edildi.'
+  },
+  {
+    id: 'DOC-VLT-105',
+    contractId: 'KNT-7822',
+    customerRef: 'Ekol Uluslararası Taşımacılık',
+    docType: 'addendum',
+    title: 'Erken İade Başvuru Dilekçesi ve Bağımsız Ekspertiz Raporu',
+    fileName: 'peugeot3008_erken_iade_ekspertiz_ekol.pdf',
+    uploadedAt: '2026-10-12',
+    fileSize: '3.1 MB',
+    status: 'valid',
+    signedDate: '2026-10-11',
+    notes: '34 EKL 491 plakalı araç için 9 ay erken fesih ekspertiz tespiti yapıldı.'
+  },
+  {
+    id: 'DOC-VLT-106',
+    contractId: 'KNT-7821',
+    customerRef: 'Borusan Lojistik Dağıtım A.Ş.',
+    docType: 'guarantee_letter',
+    title: 'Garanti BBVA Doğrudan Borçlandırma Sistemi (DBS) Sözleşmesi',
+    fileName: 'garanti_dbs_protokol_borusan.pdf',
+    uploadedAt: '2023-12-20',
+    fileSize: '1.8 MB',
+    status: 'valid',
+    signedDate: '2023-12-18',
+    expiryDate: '2026-12-31',
+    notes: '1.200.000 TL limitli DBS onay yazısı aktif.'
+  },
+  {
+    id: 'DOC-VLT-107',
+    contractId: 'KNT-7823',
+    customerRef: 'Arçelik Yetkili Servis Ağı A.Ş.',
+    docType: 'insurance_policy',
+    title: 'Filo Kasko ve İhtiyari Mali Mesuliyet (İMM) Poliçeleri',
+    fileName: 'arcelik_filo_kasko_ve_imm_policeler.pdf',
+    uploadedAt: '2026-01-12',
+    fileSize: '5.5 MB',
+    status: 'valid',
+    signedDate: '2026-01-10',
+    expiryDate: '2027-01-10',
+    notes: 'Allianz Sigorta sınırsız İMM teminatlı filo poliçesi.'
+  },
+  {
+    id: 'DOC-VLT-108',
+    contractId: 'KNT-7825',
+    customerRef: 'Şişecam Cam Pazarlama A.Ş.',
+    docType: 'guarantee_letter',
+    title: 'Akbank Kesin Teminat Mektubu (₺450.000)',
+    fileName: 'akbank_teminat_mektubu_sisecam.pdf',
+    uploadedAt: '2024-02-15',
+    fileSize: '1.1 MB',
+    status: 'expiring_soon',
+    signedDate: '2024-02-14',
+    expiryDate: '2026-11-05',
+    notes: 'Vadeye T-16 gün kaldı. Yenileme mektubu veya nakit blokaj teyidi talep edildi.'
+  }
+];
+
+export const initialComplianceAlerts: ContractComplianceAlert[] = [
+  {
+    id: 'ALT-101',
+    contractId: 'KNT-7825',
+    customerTitle: 'Şişecam Cam Pazarlama A.Ş.',
+    alertType: 'guarantee_expiry',
+    partyType: 'customer',
+    dueDate: '2026-11-05',
+    daysRemaining: 16,
+    severity: 'critical',
+    title: 'Banka Teminat Mektubu Geçerlilik Süresi Bitiyor (T-16 Gün)',
+    description: 'Akbank tarafından tanzim edilen 450.000 TL tutarındaki kesin teminat mektubunun vadesi 05 Kasım 2026 tarihinde dolmaktadır.',
+    actionRequired: 'Şişecam finans birimi ile iletişime geçilerek yeni vadeli teminat mektubunun bankadan talep edilmesi gerekmektedir.',
+    penaltyOrRisk: 'Teminat temdit edilmezse sözleşme gereği nakit blokaja dönüştürülür veya araçlar geri çağrılır.',
+    resolved: false
+  },
+  {
+    id: 'ALT-102',
+    contractId: 'KNT-7824',
+    customerTitle: 'Trendyol Express Filo Operasyonları',
+    alertType: 'interim_km_audit',
+    partyType: 'customer',
+    dueDate: '2026-11-10',
+    daysRemaining: 21,
+    severity: 'warning',
+    title: '6. Ay Ara KM Denetimi & Aşım Eşiği Sinyali (%35.5 Aşım)',
+    description: 'Trendyol filosunda yer alan 25 araçlık Courier parkurunda kümülatif odometre 89.000 KM seviyesine ulaşmıştır. Mevcut trendde yıl sonu aşımı %35.5 öngörülmektedir.',
+    actionRequired: 'TKF-2026-094 sayılı Aşırı KM Zeyilnamesinin onaylatılması ve sözleşme limitinin 55.000 KM/yıl olarak güncellenmesi.',
+    penaltyOrRisk: 'Zeyilname imzalanmazsa sözleşme sonu KM aşım cezası (₺3.50/KM + KDV) tahakkuk ettirilecektir.',
+    resolved: false
+  },
+  {
+    id: 'ALT-103',
+    contractId: 'KNT-7822',
+    customerTitle: 'Ekol Uluslararası Taşımacılık',
+    alertType: 'contract_expiry',
+    partyType: 'customer',
+    dueDate: '2026-10-30',
+    daysRemaining: 10,
+    severity: 'critical',
+    title: 'İmza Sirküleri Geçerlilik Süresi Dolmuş (Hukuk Blokajı)',
+    description: 'Ekol Taşımacılık şirket temsilcilerinin noter tasdikli imza sirküleri süresi 30.09.2026 tarihinde sona ermiştir.',
+    actionRequired: 'Erken iade protokolü ve ibra sözleşmesi imzalanmadan önce güncel imza sirküleri ve yetki belgesinin sisteme yüklenmesi zorunludur.',
+    penaltyOrRisk: 'Hukuki temsil belgesi olmadan yapılan fesih işlemleri hükümsüz kalır.',
+    resolved: false
+  },
+  {
+    id: 'ALT-104',
+    contractId: 'KNT-7826',
+    customerTitle: 'Kordsa Teknik Tekstil A.Ş.',
+    alertType: 'option_deadline',
+    partyType: 'customer',
+    dueDate: '2026-11-01',
+    daysRemaining: 12,
+    severity: 'critical',
+    title: 'Sözleşme Bitiş & Opsiyon Bildirim Son Tarihi (T-12 Gün)',
+    description: '4 adet Passat Variant sözleşmesi 01 Kasım 2026 tarihinde sona erecektir. Müşterinin araçları satın alma veya iade etme opsiyon bildirimi için son 12 gün.',
+    actionRequired: 'Onaylanan TKF-2026-092 teklifi kapsamında sözleşme yenileme protokolünün karşılıklı imzalanması.',
+    penaltyOrRisk: 'Bildirim yapılmazsa sözleşme şartı uyarınca 12 ay cari fiyatla uzamış sayılır.',
+    resolved: false
+  },
+  {
+    id: 'ALT-105',
+    contractId: 'KNT-7821',
+    customerTitle: 'Borusan Lojistik Dağıtım A.Ş.',
+    alertType: 'interim_km_audit',
+    partyType: 'customer',
+    dueDate: '2026-11-25',
+    daysRemaining: 36,
+    severity: 'low',
+    title: 'Yıllık Periyodik Bakım ve Kış Lastiği Montaj Bildirimi',
+    description: '12 adet Megane aracın periyodik 80.000 KM bakımı ve zorunlu kış lastiği geçiş planı hazırlanmıştır.',
+    actionRequired: 'Borusan filo koordinatörüne yetkili servis randevu slotlarının iletilmesi.',
+    penaltyOrRisk: '1 Aralık yasal kış lastiği zorunluluğuna uyulmaması halinde trafik cezası ve kasko rücu riski.',
+    resolved: false
+  },
+  {
+    id: 'ALT-106',
+    contractId: 'TED-2024-002',
+    customerTitle: 'Brisa Bridgestone Sabancı Lastik San. A.Ş.',
+    alertType: 'maintenance_sla',
+    partyType: 'supplier',
+    dueDate: '2026-11-15',
+    daysRemaining: 26,
+    severity: 'warning',
+    title: 'Kış Lastiği Sezonluk Kota ve Otel SLA Taahhüdü Kontrolü',
+    description: 'Sözleşme SLA Ek-2 gereği 650 servis noktasında Hedef Filo araçları için günlük en az 120 randevu slotu tahsis edilmelidir.',
+    actionRequired: 'Brisa kurumsal filo portalı üzerinden Marmara ve İç Anadolu montaj kotalarının teyit edilmesi.',
+    penaltyOrRisk: 'SLA ihlali durumunda araç başı günlük ₺1.200 ikame araç bedeli faturadan mahsup edilir.',
+    resolved: false
+  },
+  {
+    id: 'ALT-107',
+    contractId: 'KNT-7823',
+    customerTitle: 'Arçelik Yetkili Servis Ağı A.Ş.',
+    alertType: 'indexation_notice',
+    partyType: 'customer',
+    dueDate: '2026-10-31',
+    daysRemaining: 11,
+    severity: 'critical',
+    title: 'Yıllık TÜFE/ÜFE Endeksleme & Kira Revizyon Tebliği (T-11 Gün)',
+    description: 'Sözleşmenin 14. maddesi gereği kira dönemi bitişinden 20 gün önce TÜFE/ÜFE ortalaması (%41.2) oranında yeni dönem kira bedeli müşteriye yazılı tebliğ edilmelidir.',
+    actionRequired: 'Otomatik teklif motorundan üretilen endeksleme zeyilnamesinin KEP üzerinden müşteriye iletilmesi.',
+    penaltyOrRisk: 'Süresinde tebliğ edilmemesi durumunda eski kira bedeli 1 fatura dönemi uzayarak gelir kaybı yaratır.',
+    resolved: false
+  }
+];
+
+export const initialSupplierContracts: SupplierContract[] = [
+  {
+    id: 'TED-2024-001',
+    supplierName: 'Otokoç Otomotiv Tic. ve San. A.Ş.',
+    taxNumber: '6490018290',
+    category: 'authorized_service',
+    categoryLabel: 'Yetkili Servis & Onarım (Ford/Fiat/Volvo)',
+    startDate: '2024-01-01',
+    endDate: '2027-01-01',
+    status: 'Aktif',
+    daysUntilExpiry: 438,
+    responsiblePerson: 'Selin Arslan',
+    responsibleDepartment: 'Tedarikçi Yönetimi Direktörlüğü',
+    contactEmail: 'filo.servis@otokoc.com.tr',
+    contactPhone: '+90 (216) 554 40 00',
+    slaCommitment: 'Periyodik bakım max 24 saat, ağır mekanik hasar max 72 saat, %95 yedek parça bulunurluk garantisi.',
+    discountRatePercent: 22,
+    paymentTermDays: 45,
+    annualVolumeTRY: 34500000,
+    terminationNoticeDays: 60,
+    terminationConditions: 'Sözleşme hitamından en az 60 gün önce taraflarca KEP veya noter aracılığıyla fesih bildirimi yapılmadığı sürece 1 yıl kendiliğinden uzar.',
+    renewalConditions: 'TÜFE-ÜFE yıllık değişim ortalamasının azami %85\'i oranında işçilik saat ücreti artışı uygulanır.',
+    riskScore: 'A+',
+    soficoSupplierId: 'SOF-SUP-1082',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-20 09:15',
+    paperworkFolderId: 'PW-TED-001',
+    paperworkDocCount: 6,
+    missingDocuments: [],
+    documents: [
+      { id: 'PW-D1', title: 'Yetkili Servis Çerçeve Protokolü (2024-2027)', type: 'Master Sözleşme', uploadedAt: '2024-01-05', fileName: 'otokoc_cerceve_protokol_2024.pdf', status: 'valid' },
+      { id: 'PW-D2', title: 'Noter Onaylı İmza Sirküleri', type: 'Yetki Belgesi', uploadedAt: '2025-02-10', expiryDate: '2027-02-10', fileName: 'otokoc_imza_sirkuleri_2025.pdf', status: 'valid' },
+      { id: 'PW-D3', title: '2026 Yılı Parça & İşçilik İskonto Matrisi (Ek-3)', type: 'Fiyat Listesi Eki', uploadedAt: '2026-01-02', fileName: 'otokoc_2026_iskonto_matrisi.pdf', status: 'valid' }
+    ],
+    internalNotes: [
+      '2026 Q3 Servis memnuniyet anketi skoru: 4.8 / 5.0 (Mükemmel).',
+      'Marmara bölgesi servis kapasitesinde ilave 4 lift tahsis edildi.'
+    ],
+    amendments: [
+      { id: 'ZY-TED-01', title: 'Elektrikli Araç (EV) Bakım Sertifikasyonu Eki', date: '2025-06-15', type: 'Kapsam Genişletme', status: 'Yürürlükte' },
+      { id: 'ZY-TED-02', title: '2026 Yılı Boya & Kaporta İşçilik Fiks Fiyat Zeyili', date: '2026-01-10', type: 'Fiyat Revizyonu', status: 'Yürürlükte' }
+    ]
+  },
+  {
+    id: 'TED-2024-002',
+    supplierName: 'Brisa Bridgestone Sabancı Lastik San. ve Tic. A.Ş.',
+    taxNumber: '1870029104',
+    category: 'tire_supply',
+    categoryLabel: 'Lastik Tedariki & Lastik Oteli Yönetimi',
+    startDate: '2024-03-01',
+    endDate: '2026-11-30',
+    status: 'Süresi Dolmak Üzere',
+    daysUntilExpiry: 41,
+    responsiblePerson: 'Selin Arslan',
+    responsibleDepartment: 'Tedarikçi Yönetimi Direktörlüğü',
+    contactEmail: 'kurumsal.filo@brisa.com.tr',
+    contactPhone: '+90 (216) 544 30 00',
+    slaCommitment: 'Türkiye geneli 650 noktada randevulu montaj, 48 saatte lastik deposu sevk taahhüdü.',
+    discountRatePercent: 26,
+    paymentTermDays: 60,
+    annualVolumeTRY: 19800000,
+    terminationNoticeDays: 60,
+    terminationConditions: 'Sözleşme bitiminden en az 60 gün evvel fesih ihbarı gönderilmelidir. Şu an T-41 gün kalmış olup fesih ihbar penceresi içindedir!',
+    renewalConditions: 'Kauçuk hammadde endeksi ve EUR/TRY kur sepetine göre 6 aylık fiyat listesi revizyonu ile 1 yıl uzatma.',
+    riskScore: 'A',
+    soficoSupplierId: 'SOF-SUP-2041',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-20 08:45',
+    paperworkFolderId: 'PW-TED-002',
+    paperworkDocCount: 5,
+    missingDocuments: ['2026 Q4 Güncel İmza Sirküleri'],
+    documents: [
+      { id: 'PW-D4', title: 'Kurumsal Lastik Tedarik ve Saklama Sözleşmesi', type: 'Master Sözleşme', uploadedAt: '2024-03-05', fileName: 'brisa_filo_sozlesme.pdf', status: 'valid' },
+      { id: 'PW-D5', title: 'Kış Lastiği Sezonluk Saklama & Depolama Protokolü', type: 'Hizmet Protokolü', uploadedAt: '2025-10-01', fileName: 'brisa_lastik_oteli_ek.pdf', status: 'valid' }
+    ],
+    internalNotes: [
+      '2026-2027 kış sezonu öncesi sözleşme yenileme görüşmeleri başlatıldı.',
+      'Lastik oteli kayıp/hasar oranı binde 0.2 seviyesinde, hedefin altında.'
+    ],
+    amendments: [
+      { id: 'ZY-TED-03', title: '4 Mevsim Lastik Geçiş Opsiyon Protokolü', date: '2025-09-20', type: 'Ürün Kapsamı', status: 'Yürürlükte' }
+    ]
+  },
+  {
+    id: 'TED-2024-003',
+    supplierName: 'TurAssist Yardım ve Destek Hizmetleri A.Ş.',
+    taxNumber: '8710293810',
+    category: 'road_assistance',
+    categoryLabel: '7/24 Yol Yardım, Çekici & İkame Araç',
+    startDate: '2024-06-01',
+    endDate: '2027-06-01',
+    status: 'Aktif',
+    daysUntilExpiry: 590,
+    responsiblePerson: 'Can Demir',
+    responsibleDepartment: 'Filo Operasyon & Tedarikçi Masası',
+    contactEmail: 'filo.operasyon@turassist.com.tr',
+    contactPhone: '+90 (212) 336 66 00',
+    slaCommitment: 'Büyükşehirlerde 45 dakika, şehirlerarası yollarda 90 dakika içinde çekici intikali; 2 saatte C segment ikame araç teslimi.',
+    discountRatePercent: 15,
+    paymentTermDays: 30,
+    annualVolumeTRY: 12200000,
+    terminationNoticeDays: 90,
+    terminationConditions: '90 gün önceden yazılı ihbar şartı ile fesih hakkı mevcuttur.',
+    renewalConditions: 'TÜFE oranında yıllık prim ve çağrı başı hizmet bedeli artışı ile otomatik yenileme.',
+    riskScore: 'A+',
+    soficoSupplierId: 'SOF-SUP-3190',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-19 18:20',
+    paperworkFolderId: 'PW-TED-003',
+    paperworkDocCount: 4,
+    missingDocuments: [],
+    documents: [
+      { id: 'PW-D6', title: '7/24 Yol Yardım & Asistans Master Hizmet Sözleşmesi', type: 'Master Sözleşme', uploadedAt: '2024-06-02', fileName: 'turassist_asistans_master.pdf', status: 'valid' },
+      { id: 'PW-D7', title: 'SLA Hizmet Seviyesi ve Cezai Şart Protokolü', type: 'SLA Eki', uploadedAt: '2024-06-02', fileName: 'turassist_sla_protokol.pdf', status: 'valid' }
+    ],
+    internalNotes: [
+      'Mobil uygulama entegrasyonu başarıyla devreye alındı. Müşteriler çekiciyi canlı haritada takip edebiliyor.'
+    ],
+    amendments: []
+  },
+  {
+    id: 'TED-2024-004',
+    supplierName: 'Doğuş Otomotiv Servis ve Ticaret A.Ş.',
+    taxNumber: '3090019283',
+    category: 'vehicle_procurement',
+    categoryLabel: 'Yeni Araç Tedariki & Bayi Teslimat (VW/Audi/Skoda)',
+    startDate: '2025-01-01',
+    endDate: '2026-12-31',
+    status: 'Aktif',
+    daysUntilExpiry: 72,
+    responsiblePerson: 'Zeynep Koç',
+    responsibleDepartment: 'Satın Alma & Araç Yatırım Direktörlüğü',
+    contactEmail: 'filosatis@dogusotomotiv.com.tr',
+    contactPhone: '+90 (262) 676 70 00',
+    slaCommitment: 'Yıllık 400+ araç alım garantisi karşılığı özel fabrika filo iskontosu ve öncelikli üretim kotası.',
+    discountRatePercent: 14,
+    paymentTermDays: 15,
+    annualVolumeTRY: 285000000,
+    terminationNoticeDays: 30,
+    terminationConditions: 'Yıl sonu öncesi 30 gün içinde yeni kota ve iskonto mutabakatı sağlanır.',
+    renewalConditions: 'Yıllık araç kotası ve model dağılımı mutabakatı ile 1 yıl uzatma.',
+    riskScore: 'A+',
+    soficoSupplierId: 'SOF-SUP-0012',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-20 10:00',
+    paperworkFolderId: 'PW-TED-004',
+    paperworkDocCount: 8,
+    missingDocuments: [],
+    documents: [
+      { id: 'PW-D8', title: '2025-2026 Yıllık Filo Alım & Tedarik Çerçeve Anlaşması', type: 'Tedarik Sözleşmesi', uploadedAt: '2025-01-10', fileName: 'dogus_filo_tedarik_2025.pdf', status: 'valid' },
+      { id: 'PW-D9', title: 'Teslimat Öncesi PDI Kontrol ve Lojistik Protokolü', type: 'Lojistik Eki', uploadedAt: '2025-01-10', fileName: 'dogus_pdi_protokol.pdf', status: 'valid' }
+    ],
+    internalNotes: [
+      '2027 modeli için Passat Variant ve Tiguan kotaları rezerve edildi.'
+    ],
+    amendments: [
+      { id: 'ZY-TED-04', title: 'Skoda Octavia Modeli Filo İndirimi İlave Zeyili', date: '2025-08-01', type: 'Model Genişletme', status: 'Yürürlükte' }
+    ]
+  },
+  {
+    id: 'TED-2024-005',
+    supplierName: 'Mutlu Akü ve Malzemeleri Sanayi A.Ş.',
+    taxNumber: '6240039182',
+    category: 'spare_parts',
+    categoryLabel: 'Akü Tedariki & Değişim Servis Ağı',
+    startDate: '2023-10-01',
+    endDate: '2026-10-31',
+    status: 'Süresi Dolmak Üzere',
+    daysUntilExpiry: 11,
+    responsiblePerson: 'Selin Arslan',
+    responsibleDepartment: 'Tedarikçi Yönetimi Direktörlüğü',
+    contactEmail: 'kurumsal@mutlu.com.tr',
+    contactPhone: '+90 (216) 304 15 00',
+    slaCommitment: 'Eski akü iadesi karşılığı yerinde montaj ve 24 saatte garanti kapsamında birebir değişim.',
+    discountRatePercent: 28,
+    paymentTermDays: 45,
+    annualVolumeTRY: 4800000,
+    terminationNoticeDays: 30,
+    terminationConditions: 'Sözleşme hitamından 30 gün önce fesih ihbarı verilmelidir. Son 11 gün kalmıştır!',
+    renewalConditions: 'LME kurşun borsa fiyatı bazlı formül üzerinden 3 aylık güncelleme ile uzatma.',
+    riskScore: 'B',
+    soficoSupplierId: 'SOF-SUP-4019',
+    soficoSyncStatus: 'pending',
+    lastSoficoSync: '2026-10-15 14:10',
+    paperworkFolderId: 'PW-TED-005',
+    paperworkDocCount: 3,
+    missingDocuments: ['2026 Fabrika Distribütörlük Yetki Belgesi'],
+    documents: [
+      { id: 'PW-D10', title: 'Akü Tedarik ve Hurda İade Çerçeve Sözleşmesi', type: 'Tedarik Sözleşmesi', uploadedAt: '2023-10-05', fileName: 'mutlu_aku_tedarik.pdf', status: 'expiring_soon' }
+    ],
+    internalNotes: [
+      'Geciken evrak: 2026 fabrika distribütörlük belgesi henüz iletilmedi, tedarikçi uyarıldı.'
+    ],
+    amendments: []
+  },
+  {
+    id: 'TED-2024-006',
+    supplierName: 'TÜV SÜD D-Expert Ekspertiz Hizmetleri A.Ş.',
+    taxNumber: '8790123984',
+    category: 'inspection',
+    categoryLabel: 'İade Ekspertiz & Bağımsız Değerleme',
+    startDate: '2024-05-01',
+    endDate: '2027-05-01',
+    status: 'Aktif',
+    daysUntilExpiry: 558,
+    responsiblePerson: 'Can Demir',
+    responsibleDepartment: 'Filo Operasyon & Tedarikçi Masası',
+    contactEmail: 'filo.ekspertiz@tuvsud-d-expert.com.tr',
+    contactPhone: '+90 (216) 555 10 00',
+    slaCommitment: 'İade bildiriminden itibaren 48 saat içinde TSE standartlarında fotoğraflı ekspertiz ve aşınma tolerans raporu.',
+    paymentTermDays: 30,
+    annualVolumeTRY: 3200000,
+    terminationNoticeDays: 60,
+    terminationConditions: '60 gün öncesinden yazılı bildirim ile taraflar tazminatsız feshedebilir.',
+    renewalConditions: 'Araç başı ekspertiz bedeli TÜFE oranında revize edilerek yıllık yenilenir.',
+    riskScore: 'A',
+    soficoSupplierId: 'SOF-SUP-5100',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-20 11:00',
+    paperworkFolderId: 'PW-TED-006',
+    paperworkDocCount: 4,
+    missingDocuments: [],
+    documents: [
+      { id: 'PW-D11', title: 'Araç İade Ekspertiz Hizmet Çerçeve Sözleşmesi', type: 'Master Sözleşme', uploadedAt: '2024-05-05', fileName: 'tuvsud_ekspertiz_sozlesme.pdf', status: 'valid' }
+    ],
+    internalNotes: [
+      'Erken iade modülündeki hasar fark hesaplamaları TÜV SÜD dijital API çıktısına tam uyumlu.'
+    ],
+    amendments: []
+  },
+  {
+    id: 'TED-2024-007',
+    supplierName: 'Anadolu Anonim Türk Sigorta Şirketi',
+    taxNumber: '0680019201',
+    category: 'insurance',
+    categoryLabel: 'Filo Kasko & Zorunlu Trafik Master Poliçesi',
+    startDate: '2025-11-01',
+    endDate: '2026-11-01',
+    status: 'İncelemede',
+    daysUntilExpiry: 12,
+    responsiblePerson: 'Burak Kaya',
+    responsibleDepartment: 'Sözleşme & Risk Direktörlüğü',
+    contactEmail: 'kurumsal.kasko@anadolusigorta.com.tr',
+    contactPhone: '+90 (850) 724 08 50',
+    slaCommitment: 'Hasar anında dosya açılışı, 24 saatte eksper ataması ve anlaşmalı 1200 yetkili serviste doğrudan faturalama.',
+    paymentTermDays: 30,
+    annualVolumeTRY: 42000000,
+    terminationNoticeDays: 45,
+    terminationConditions: 'Yenileme döneminden 45 gün evvel filo hasar/prim oranı mutabakatı yapılmalıdır.',
+    renewalConditions: 'Filo Loss-Ratio katsayısına göre hasarsızlık indirimi kademelendirmesi ile yıllık poliçe yenileme.',
+    riskScore: 'A',
+    soficoSupplierId: 'SOF-SUP-6001',
+    soficoSyncStatus: 'synced',
+    lastSoficoSync: '2026-10-20 11:30',
+    paperworkFolderId: 'PW-TED-007',
+    paperworkDocCount: 7,
+    missingDocuments: [],
+    documents: [
+      { id: 'PW-D12', title: '2025-2026 Filo Kasko Master Poliçesi', type: 'Sigorta Poliçesi', uploadedAt: '2025-11-02', fileName: 'anadolu_kasko_master_2025.pdf', status: 'expiring_soon' },
+      { id: 'PW-D13', title: 'Muafiyet ve İkame Araç Özel Şartnamesi', type: 'Özel Şartlar', uploadedAt: '2025-11-02', fileName: 'anadolu_muafiyet_ek.pdf', status: 'valid' }
+    ],
+    internalNotes: [
+      '2026-2027 kasko teklif revizyonu inceleniyor. Hasar/prim oranı %62 ile mükemmel seviyede.'
+    ],
+    amendments: [
+      { id: 'ZY-TED-05', title: 'Yurt Dışı Seyahat Kasko Klozu Zeyilnamesi', date: '2026-03-12', type: 'Teminat Genişletme', status: 'Yürürlükte' }
+    ]
+  }
+];
+
 

@@ -19,7 +19,12 @@ import {
   CreditCheckRecord,
   ExpenseDiscrepancyItem,
   CustomerPortalRequest,
-  PortfolioMode
+  PortfolioMode,
+  CLMStage,
+  ContractClauseTemplate,
+  ContractVaultDocument,
+  ContractComplianceAlert,
+  SupplierContract
 } from '../types';
 import {
   initialTasks,
@@ -34,7 +39,11 @@ import {
   initialDeliveryItems,
   initialCreditRecords,
   initialExpenseDiscrepancies,
-  initialCustomerPortalRequests
+  initialCustomerPortalRequests,
+  initialClauseTemplates,
+  initialVaultDocuments,
+  initialComplianceAlerts,
+  initialSupplierContracts
 } from '../data/initialData';
 
 interface NotificationMessage {
@@ -107,6 +116,22 @@ interface SalesOpsContextType {
 
   // Contract & Renewal methods
   createRenewalTaskForContract: (contractId: string) => { success: boolean; message: string; taskId?: string };
+  updateContract: (contractId: string, updates: Partial<Contract>) => void;
+  syncContractWithSofico: (id: string, isSupplier?: boolean) => Promise<boolean>;
+  addContractInternalNote: (id: string, note: string, isSupplier?: boolean) => void;
+
+  // Supplier Contracts & Management (Tedarikçi Yönetimi)
+  supplierContracts: SupplierContract[];
+  updateSupplierContract: (contractId: string, updates: Partial<SupplierContract>) => void;
+
+  // CLM and Contract Library
+  clauseTemplates: ContractClauseTemplate[];
+  vaultDocuments: ContractVaultDocument[];
+  complianceAlerts: ContractComplianceAlert[];
+  updateContractCLMStage: (contractId: string, newStage: CLMStage, note?: string) => void;
+  addVaultDocument: (doc: Omit<ContractVaultDocument, 'id' | 'uploadedAt'>) => ContractVaultDocument;
+  resolveComplianceAlert: (alertId: string) => void;
+  addClauseTemplate: (clause: Omit<ContractClauseTemplate, 'id' | 'legalApprovedDate'>) => ContractClauseTemplate;
 
   // Document methods
   updateDocumentStatus: (docId: string, newStatus: DocumentStatus, notes?: string) => void;
@@ -268,6 +293,30 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return saved ? JSON.parse(saved) : initialCustomerPortalRequests;
   });
 
+  const [clauseTemplates, setClauseTemplates] = useState<ContractClauseTemplate[]>(() => {
+    const saved = localStorage.getItem(`${STORAGE_KEY}_clause_templates`);
+    return saved ? JSON.parse(saved) : initialClauseTemplates;
+  });
+
+  const [vaultDocuments, setVaultDocuments] = useState<ContractVaultDocument[]>(() => {
+    const saved = localStorage.getItem(`${STORAGE_KEY}_vault_docs`);
+    return saved ? JSON.parse(saved) : initialVaultDocuments;
+  });
+
+  const [complianceAlerts, setComplianceAlerts] = useState<ContractComplianceAlert[]>(() => {
+    const saved = localStorage.getItem(`${STORAGE_KEY}_compliance_alerts`);
+    return saved ? JSON.parse(saved) : initialComplianceAlerts;
+  });
+
+  const [supplierContracts, setSupplierContracts] = useState<SupplierContract[]>(() => {
+    const saved = localStorage.getItem(`${STORAGE_KEY}_supplier_contracts`);
+    return saved ? JSON.parse(saved) : initialSupplierContracts;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(`${STORAGE_KEY}_supplier_contracts`, JSON.stringify(supplierContracts));
+  }, [supplierContracts]);
+
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY}_delivery`, JSON.stringify(deliveryItems));
   }, [deliveryItems]);
@@ -283,6 +332,18 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY}_portal_reqs`, JSON.stringify(customerPortalRequests));
   }, [customerPortalRequests]);
+
+  useEffect(() => {
+    localStorage.setItem(`${STORAGE_KEY}_clause_templates`, JSON.stringify(clauseTemplates));
+  }, [clauseTemplates]);
+
+  useEffect(() => {
+    localStorage.setItem(`${STORAGE_KEY}_vault_docs`, JSON.stringify(vaultDocuments));
+  }, [vaultDocuments]);
+
+  useEffect(() => {
+    localStorage.setItem(`${STORAGE_KEY}_compliance_alerts`, JSON.stringify(complianceAlerts));
+  }, [complianceAlerts]);
 
   // Scoped views based on active portfolio mode (B2B Hedef Filo vs. B2C Filomingo)
   const scopedTasks = useMemo(() => {
@@ -808,6 +869,120 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
   };
 
+  // Dedicated Contract & Supplier Contract Methods (Detay Çekmecesi & Entegrasyonlar)
+  const updateContract = (contractId: string, updates: Partial<Contract>) => {
+    setContracts(prev =>
+      prev.map(c => (c.id === contractId ? { ...c, ...updates } : c))
+    );
+    addNotification(`Sözleşme güncellendi: ${contractId}`, 'success');
+  };
+
+  const updateSupplierContract = (contractId: string, updates: Partial<SupplierContract>) => {
+    setSupplierContracts(prev =>
+      prev.map(c => (c.id === contractId ? { ...c, ...updates } : c))
+    );
+    addNotification(`Tedarikçi sözleşmesi güncellendi: ${contractId}`, 'success');
+  };
+
+  const syncContractWithSofico = async (id: string, isSupplier?: boolean): Promise<boolean> => {
+    const nowStr = new Date().toISOString().replace('T', ' ').slice(0, 16);
+    if (isSupplier) {
+      setSupplierContracts(prev =>
+        prev.map(s => s.id === id ? { ...s, soficoSyncStatus: 'synced', lastSoficoSync: nowStr } : s)
+      );
+      addNotification(`Sofico Miles ERP ile anlık mutabakat tamamlandı: ${id}`, 'success');
+    } else {
+      setContracts(prev =>
+        prev.map(c => c.id === id ? { ...c, soficoSyncStatus: 'synced', lastSoficoSync: nowStr } : c)
+      );
+      addNotification(`Sofico Miles ERP ile anlık telematik ve finans senkronizasyonu sağlandı: ${id}`, 'success');
+    }
+    return true;
+  };
+
+  const addContractInternalNote = (id: string, note: string, isSupplier?: boolean) => {
+    const dateStr = new Date().toISOString().split('T')[0];
+    const formattedNote = `[${dateStr}] ${note}`;
+    if (isSupplier) {
+      setSupplierContracts(prev =>
+        prev.map(s => s.id === id ? { ...s, internalNotes: [formattedNote, ...(s.internalNotes || [])] } : s)
+      );
+    } else {
+      setContracts(prev =>
+        prev.map(c => c.id === id ? { ...c, internalNotes: [formattedNote, ...(c.internalNotes || [])] } : c)
+      );
+    }
+    addNotification(`Dahili operasyonel not eklendi: ${id}`, 'info');
+  };
+
+  // CLM Stage and Lifecycle Operations
+  const updateContractCLMStage = (contractId: string, newStage: CLMStage, note?: string) => {
+    const stageLabels: Record<CLMStage, string> = {
+      draft: 'Taslak Hazırlık',
+      internal_review: 'Hukuk & Finans İnceleme',
+      negotiation: 'Müşteri Müzakeresi',
+      signature_pending: 'İmza / KEP Bekliyor',
+      active_in_force: 'Yürürlükte (Aktif)',
+      addendum_in_review: 'Zeyilname Sürecinde',
+      renewal_pending: 'Yenileme Bekliyor',
+      closed_archived: 'Arşivlendi / Kapatıldı'
+    };
+
+    setContracts(prev =>
+      prev.map(c => {
+        if (c.id === contractId) {
+          const updated: Contract = {
+            ...c,
+            clmStage: newStage,
+            clmStageUpdatedAt: new Date().toISOString().split('T')[0]
+          };
+          if (note) {
+            updated.nextAction = note;
+          }
+          if (newStage === 'active_in_force') {
+            updated.renewalStatus = 'Yenilendi';
+          }
+          return updated;
+        }
+        return c;
+      })
+    );
+
+    addNotification(
+      `Sözleşme ${contractId} yaşam döngüsü aşaması güncellendi: ${stageLabels[newStage]}`,
+      'success'
+    );
+  };
+
+  const addVaultDocument = (doc: Omit<ContractVaultDocument, 'id' | 'uploadedAt'>): ContractVaultDocument => {
+    const newDoc: ContractVaultDocument = {
+      ...doc,
+      id: `DOC-VLT-${Date.now().toString().slice(-4)}`,
+      uploadedAt: new Date().toISOString().split('T')[0]
+    };
+    setVaultDocuments(prev => [newDoc, ...prev]);
+    addNotification(`Doküman kasasına evrak eklendi: ${newDoc.title}`, 'success');
+    return newDoc;
+  };
+
+  const resolveComplianceAlert = (alertId: string) => {
+    setComplianceAlerts(prev =>
+      prev.map(a => (a.id === alertId ? { ...a, resolved: true } : a))
+    );
+    addNotification(`Hukuki yükümlülük alarmı çözümlendi olarak işaretlendi.`, 'info');
+  };
+
+  const addClauseTemplate = (clause: Omit<ContractClauseTemplate, 'id' | 'legalApprovedDate'>): ContractClauseTemplate => {
+    const newClause: ContractClauseTemplate = {
+      ...clause,
+      id: `CLS-${(clauseTemplates.length + 1).toString().padStart(2, '0')}`,
+      legalApprovedDate: new Date().toISOString().split('T')[0]
+    };
+    setClauseTemplates(prev => [...prev, newClause]);
+    addNotification(`Madde kütüphanesine yeni madde eklendi: ${newClause.code}`, 'success');
+    return newClause;
+  };
+
   // Document Operations
   const updateDocumentStatus = (docId: string, newStatus: DocumentStatus, notes?: string) => {
     setDocuments(prev =>
@@ -1062,6 +1237,10 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setDisputes(initialDisputes);
     setAutomationRules(initialAutomationRules);
     setSettings(initialSettings);
+    setClauseTemplates(initialClauseTemplates);
+    setVaultDocuments(initialVaultDocuments);
+    setComplianceAlerts(initialComplianceAlerts);
+    setSupplierContracts(initialSupplierContracts);
     localStorage.removeItem(`${STORAGE_KEY}_tasks`);
     localStorage.removeItem(`${STORAGE_KEY}_quotations`);
     localStorage.removeItem(`${STORAGE_KEY}_contracts`);
@@ -1069,6 +1248,10 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.removeItem(`${STORAGE_KEY}_disputes`);
     localStorage.removeItem(`${STORAGE_KEY}_rules`);
     localStorage.removeItem(`${STORAGE_KEY}_settings`);
+    localStorage.removeItem(`${STORAGE_KEY}_clause_templates`);
+    localStorage.removeItem(`${STORAGE_KEY}_vault_docs`);
+    localStorage.removeItem(`${STORAGE_KEY}_compliance_alerts`);
+    localStorage.removeItem(`${STORAGE_KEY}_supplier_contracts`);
     addNotification('Demo veri seti sıfırlandı ve fabrika ayarlarına döndürüldü.', 'info');
   };
 
@@ -1172,6 +1355,18 @@ export const SalesOpsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         addQuotationVersion,
         updateQuotationStatus,
         createRenewalTaskForContract,
+        updateContract,
+        updateSupplierContract,
+        syncContractWithSofico,
+        addContractInternalNote,
+        supplierContracts,
+        clauseTemplates,
+        vaultDocuments,
+        complianceAlerts,
+        updateContractCLMStage,
+        addVaultDocument,
+        resolveComplianceAlert,
+        addClauseTemplate,
         updateDocumentStatus,
         uploadDocumentPlaceholder,
         createMissingDocFollowUpTask,

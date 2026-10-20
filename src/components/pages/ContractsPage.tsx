@@ -11,13 +11,28 @@ import {
   ExternalLink,
   ShieldCheck,
   Zap,
-  Info
+  Info,
+  Layers,
+  BookOpen,
+  FolderArchive,
+  BellRing,
+  ListFilter,
+  Building2,
+  Eye,
+  FileCheck2
 } from 'lucide-react';
 import { useSalesOps } from '../../context/SalesOpsContext';
 import { Contract, RenewalStatus } from '../../types';
 import { StatusBadge } from '../common/StatusBadge';
 import { Modal } from '../common/Modal';
 import { AutomatedQuotationGeneratorModal } from '../modals/AutomatedQuotationGeneratorModal';
+import { CLMKanbanBoard } from '../clm/CLMKanbanBoard';
+import { ClauseLibraryView } from '../clm/ClauseLibraryView';
+import { ContractVaultView } from '../clm/ContractVaultView';
+import { ComplianceCalendarView } from '../clm/ComplianceCalendarView';
+import { SupplierContractsTab } from '../clm/SupplierContractsTab';
+import { ContractDetailDrawer } from '../clm/ContractDetailDrawer';
+import { PaperworkDocumentViewerModal } from '../modals/PaperworkDocumentViewerModal';
 
 export const ContractsPage: React.FC = () => {
   const {
@@ -25,9 +40,14 @@ export const ContractsPage: React.FC = () => {
     createRenewalTaskForContract,
     settings,
     setActivePage,
-    setSelectedTaskId
+    setSelectedTaskId,
+    clauseTemplates,
+    vaultDocuments,
+    complianceAlerts,
+    supplierContracts
   } = useSalesOps();
 
+  const [activeTab, setActiveTab] = useState<'portfolio' | 'suppliers' | 'clm_kanban' | 'clause_library' | 'contract_vault' | 'compliance_calendar'>('portfolio');
   const [searchQuery, setSearchQuery] = useState('');
   const [renewalFilter, setRenewalFilter] = useState<'all' | '30' | '60' | '90' | 'overdue'>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -36,6 +56,23 @@ export const ContractsPage: React.FC = () => {
   // Automated Quotation Generator Modal state
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
   const [generatorContractId, setGeneratorContractId] = useState<string | undefined>(undefined);
+
+  // Contract Detail Drawer state
+  const [selectedContractForDrawer, setSelectedContractForDrawer] = useState<Contract | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const handleOpenDrawer = (c: Contract) => {
+    setSelectedContractForDrawer(c);
+    setIsDrawerOpen(true);
+  };
+
+  // Paperwork modal state for customer contracts
+  const [paperworkContract, setPaperworkContract] = useState<Contract | null>(null);
+
+  const handleOpenGenerator = (contractId?: string) => {
+    setGeneratorContractId(contractId);
+    setIsGeneratorOpen(true);
+  };
 
   const filteredContracts = contracts.filter(c => {
     if (searchQuery.trim()) {
@@ -104,6 +141,115 @@ export const ContractsPage: React.FC = () => {
         </div>
       )}
 
+      {/* CLM Tab Navigation */}
+      <div className="bg-white p-1.5 rounded-lg border border-slate-200 shadow-2xs flex items-center gap-1 overflow-x-auto text-xs">
+        <button
+          onClick={() => setActiveTab('portfolio')}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium transition-colors whitespace-nowrap ${
+            activeTab === 'portfolio'
+              ? 'bg-blue-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
+        >
+          <ListFilter className="w-4 h-4" />
+          <span>Sözleşme Portföyü & Liste</span>
+          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+            activeTab === 'portfolio' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-700'
+          }`}>
+            {contracts.length}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('suppliers')}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium transition-colors whitespace-nowrap ${
+            activeTab === 'suppliers'
+              ? 'bg-blue-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
+        >
+          <Building2 className="w-4 h-4" />
+          <span>Tedarikçi Sözleşmeleri</span>
+          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+            activeTab === 'suppliers' ? 'bg-blue-700 text-white' : 'bg-indigo-50 text-indigo-700'
+          }`}>
+            {supplierContracts.length}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('clm_kanban')}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium transition-colors whitespace-nowrap ${
+            activeTab === 'clm_kanban'
+              ? 'bg-blue-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
+        >
+          <Layers className="w-4 h-4" />
+          <span>Yaşam Döngüsü Kanbanı (CLM)</span>
+          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+            activeTab === 'clm_kanban' ? 'bg-blue-700 text-white' : 'bg-blue-50 text-blue-700'
+          }`}>
+            6 Aşama
+          </span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('clause_library')}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium transition-colors whitespace-nowrap ${
+            activeTab === 'clause_library'
+              ? 'bg-blue-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
+        >
+          <BookOpen className="w-4 h-4" />
+          <span>Madde & Zeyil Kütüphanesi</span>
+          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+            activeTab === 'clause_library' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-700'
+          }`}>
+            {clauseTemplates.length}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('contract_vault')}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium transition-colors whitespace-nowrap ${
+            activeTab === 'contract_vault'
+              ? 'bg-blue-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
+        >
+          <FolderArchive className="w-4 h-4" />
+          <span>Doküman Kasası & Ek Evraklar</span>
+          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+            activeTab === 'contract_vault' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-700'
+          }`}>
+            {vaultDocuments.length}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('compliance_calendar')}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium transition-colors whitespace-nowrap ${
+            activeTab === 'compliance_calendar'
+              ? 'bg-blue-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
+        >
+          <BellRing className="w-4 h-4" />
+          <span>Kritik Süre & Alarm Takvimi</span>
+          {complianceAlerts.filter(a => !a.resolved).length > 0 && (
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+              activeTab === 'compliance_calendar' ? 'bg-rose-500 text-white' : 'bg-rose-100 text-rose-800'
+            }`}>
+              {complianceAlerts.filter(a => !a.resolved).length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {activeTab === 'portfolio' && (
+        <>
       {/* Filter Bar */}
       <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="relative flex-1 min-w-[240px]">
@@ -184,21 +330,23 @@ export const ContractsPage: React.FC = () => {
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                 <th className="py-3 px-3 whitespace-nowrap">Sözleşme ID</th>
-                <th className="py-3 px-3 min-w-[200px]">Müşteri & Filo</th>
+                <th className="py-3 px-3 min-w-[190px]">Müşteri & Filo</th>
                 <th className="py-3 px-3 whitespace-nowrap">Plaka / Model</th>
                 <th className="py-3 px-3 whitespace-nowrap">Bitiş Tarihi</th>
                 <th className="py-3 px-3 whitespace-nowrap">Kalan Süre</th>
+                <th className="py-3 px-3 whitespace-nowrap">Fesih İhbarı</th>
                 <th className="py-3 px-3 whitespace-nowrap">KM Projeksiyonu</th>
                 <th className="py-3 px-3 whitespace-nowrap">Sorumlu</th>
+                <th className="py-3 px-3 whitespace-nowrap">Entegrasyon</th>
                 <th className="py-3 px-3 whitespace-nowrap">Yenileme Durumu</th>
-                <th className="py-3 px-3 min-w-[200px]">Sonraki Aksiyon</th>
-                <th className="py-3 px-3 whitespace-nowrap text-right">Görev İşlemi</th>
+                <th className="py-3 px-3 min-w-[160px]">Sonraki Aksiyon</th>
+                <th className="py-3 px-3 whitespace-nowrap text-right">İşlemler</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
               {filteredContracts.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-8 text-center text-slate-400 text-xs">
+                  <td colSpan={12} className="py-8 text-center text-slate-400 text-xs">
                     Kriterlere uygun sözleşme bulunamadı.
                   </td>
                 </tr>
@@ -207,9 +355,15 @@ export const ContractsPage: React.FC = () => {
                   const isExpiringSoon = c.daysUntilRenewal <= 90;
                   const isCriticalExpiration = c.daysUntilRenewal <= 30;
                   const hasKmOverage = c.projectedOverKmPercent >= 15;
+                  const noticeDays = c.terminationNoticeDays || 60;
+                  const isWithinNoticeWindow = c.daysUntilRenewal <= noticeDays && c.daysUntilRenewal > 0;
 
                   return (
-                    <tr key={c.id} className="hover:bg-blue-50/40 transition-colors">
+                    <tr
+                      key={c.id}
+                      onClick={() => handleOpenDrawer(c)}
+                      className="hover:bg-blue-50/40 cursor-pointer transition-colors group"
+                    >
                       {/* ID */}
                       <td className="py-2.5 px-3 font-mono font-bold text-blue-700 whitespace-nowrap">
                         {c.id}
@@ -217,7 +371,9 @@ export const ContractsPage: React.FC = () => {
 
                       {/* Customer & Fleet */}
                       <td className="py-2.5 px-3">
-                        <div className="font-semibold text-slate-900">{c.customerRef}</div>
+                        <div className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
+                          {c.customerRef}
+                        </div>
                         <div className="text-[11px] text-slate-500 font-mono mt-0.5 flex flex-wrap items-center gap-1">
                           <span>{c.vehicleCount} Araç</span>
                           <span>·</span>
@@ -262,6 +418,23 @@ export const ContractsPage: React.FC = () => {
                         </span>
                       </td>
 
+                      {/* Termination Notice Period & Warning */}
+                      <td className="py-2.5 px-3 whitespace-nowrap">
+                        <div className="font-mono text-[11px] text-slate-700">
+                          {noticeDays} Gün Öncesi
+                        </div>
+                        {isWithinNoticeWindow ? (
+                          <span className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-1 py-0.2 rounded inline-flex items-center gap-0.5 mt-0.5">
+                            <AlertTriangle className="w-3 h-3 text-rose-600 shrink-0" />
+                            İhbar Penceresi
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 block mt-0.5">
+                            Standart Kural
+                          </span>
+                        )}
+                      </td>
+
                       {/* Km projection & Overage warning */}
                       <td className="py-2.5 px-3 font-mono tabular-nums whitespace-nowrap">
                         <div className="text-slate-700">
@@ -283,6 +456,26 @@ export const ContractsPage: React.FC = () => {
                         <span className="text-slate-800">{c.assignedOwner}</span>
                       </td>
 
+                      {/* External Integrations (Sofico / Paperwork) */}
+                      <td className="py-2.5 px-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            title={`Sofico ERP: ${c.soficoContractId || 'SOF-KNT'}`}
+                            className="text-[10px] bg-blue-50 text-blue-700 border border-blue-200 px-1.5 py-0.5 rounded font-mono font-bold"
+                          >
+                            SM
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setPaperworkContract(c)}
+                            title="Paperwork Belge Arşivinde Aç"
+                            className="text-[10px] bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded font-mono font-bold transition-colors flex items-center gap-0.5"
+                          >
+                            <span>PW:{c.paperworkDocCount || 4}</span>
+                          </button>
+                        </div>
+                      </td>
+
                       {/* Status */}
                       <td className="py-2.5 px-3 whitespace-nowrap">
                         <StatusBadge status={c.renewalStatus} />
@@ -295,14 +488,25 @@ export const ContractsPage: React.FC = () => {
                         </div>
                       </td>
 
-                      {/* Action Button */}
-                      <td className="py-2.5 px-3 text-right whitespace-nowrap space-x-1.5">
+                      {/* Action Buttons */}
+                      <td className="py-2.5 px-3 text-right whitespace-nowrap space-x-1.5" onClick={e => e.stopPropagation()}>
                         <button
+                          type="button"
+                          onClick={() => handleOpenDrawer(c)}
+                          className="px-2 py-1 text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 rounded hover:bg-slate-200 transition-colors inline-flex items-center gap-1"
+                          title="Detay Çekmecesini Aç"
+                        >
+                          <Eye className="w-3 h-3 text-slate-500" />
+                          <span>Detay</span>
+                        </button>
+
+                        <button
+                          type="button"
                           onClick={() => {
                             setGeneratorContractId(c.id);
                             setIsGeneratorOpen(true);
                           }}
-                          className="px-2.5 py-1 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100 transition-colors"
+                          className="px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100 transition-colors"
                           title="Bu sözleşme için otomatik teklif üret"
                         >
                           Teklif Üret
@@ -310,13 +514,14 @@ export const ContractsPage: React.FC = () => {
 
                         {c.hasRenewalTask ? (
                           <button
+                            type="button"
                             onClick={() => {
                               if (c.renewalTaskId) {
                                 setSelectedTaskId(c.renewalTaskId);
                                 setActivePage('tasks');
                               }
                             }}
-                            className="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 rounded hover:bg-slate-200 inline-flex items-center gap-1"
+                            className="px-2 py-1 text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 rounded hover:bg-slate-200 inline-flex items-center gap-1"
                             title="Aktif görevi görüntüle"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
@@ -324,11 +529,12 @@ export const ContractsPage: React.FC = () => {
                           </button>
                         ) : (
                           <button
+                            type="button"
                             onClick={() => handleCreateRenewalTask(c.id)}
-                            className="px-2.5 py-1 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-900 rounded shadow-2xs transition-colors inline-flex items-center gap-1"
+                            className="px-2 py-1 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-900 rounded shadow-2xs transition-colors inline-flex items-center gap-1"
                           >
                             <Plus className="w-3.5 h-3.5" />
-                            <span>Görev Aç</span>
+                            <span>Görev</span>
                           </button>
                         )}
                       </td>
@@ -342,15 +548,61 @@ export const ContractsPage: React.FC = () => {
 
         {/* Footer Guidance */}
         <div className="p-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-          <span>Toplam {filteredContracts.length} sözleşme kaydı listeleniyor</span>
+          <span>Toplam {filteredContracts.length} sözleşme kaydı listeleniyor (Tıklandığında Detay Çekmecesi açılır)</span>
           <div className="flex items-center gap-2 text-[11px] text-slate-500">
             <Info className="w-3.5 h-3.5 text-blue-600 shrink-0" />
             <span>
-              Mükerrerlik Koruması: Aynı sözleşme için birden fazla yenileme görevi oluşturulması engellenmektedir.
+              Sofico Miles ERP ve Paperwork EBYS ile iki yönlü canlı senkronizasyon aktiftir.
             </span>
           </div>
         </div>
       </div>
+      </>
+      )}
+
+      {/* Supplier Management Tab */}
+      {activeTab === 'suppliers' && (
+        <SupplierContractsTab />
+      )}
+
+      {activeTab === 'clm_kanban' && (
+        <CLMKanbanBoard onOpenGenerator={handleOpenGenerator} />
+      )}
+
+      {activeTab === 'clause_library' && (
+        <ClauseLibraryView onOpenGeneratorWithClause={() => handleOpenGenerator()} />
+      )}
+
+      {activeTab === 'contract_vault' && (
+        <ContractVaultView />
+      )}
+
+      {activeTab === 'compliance_calendar' && (
+        <ComplianceCalendarView onOpenGenerator={handleOpenGenerator} />
+      )}
+
+      {/* Dedicated Contract Detail Drawer */}
+      <ContractDetailDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setSelectedContractForDrawer(null);
+        }}
+        contract={selectedContractForDrawer}
+        onOpenGenerator={handleOpenGenerator}
+        onCreateRenewalTask={handleCreateRenewalTask}
+      />
+
+      {/* Customer Contract Paperwork Document Viewer Modal */}
+      {paperworkContract && (
+        <PaperworkDocumentViewerModal
+          isOpen={!!paperworkContract}
+          onClose={() => setPaperworkContract(null)}
+          folderId={paperworkContract.paperworkFolderId || `PW-${paperworkContract.id}`}
+          entityName={paperworkContract.customerRef}
+          contractId={paperworkContract.id}
+        />
+      )}
 
       {/* Automated Quotation Generator Modal */}
       <AutomatedQuotationGeneratorModal

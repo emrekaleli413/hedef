@@ -194,6 +194,137 @@ export interface Contract {
   paymentMethod?: 'Kredi Kartı Otomatik Çekim' | 'DBS' | 'Banka Havalesi / Cari Hesap';
   depositBlockedAmountTRY?: number;
   rightOfWithdrawalDaysRemaining?: number;
+  clmStage?: CLMStage;
+  clmStageUpdatedAt?: string;
+  terminationNoticeDays?: number;
+  terminationConditions?: string;
+  renewalConditions?: string;
+  earlyTerminationPenaltyRate?: number;
+  soficoContractId?: string;
+  soficoSyncStatus?: 'synced' | 'pending' | 'out_of_sync';
+  lastSoficoSync?: string;
+  paperworkFolderId?: string;
+  paperworkDocCount?: number;
+  responsibleDepartment?: string;
+  internalNotes?: string[];
+  linkedAmendments?: Array<{
+    id: string;
+    title: string;
+    date: string;
+    type: string;
+    status: string;
+  }>;
+  missingDocuments?: string[];
+}
+
+export type SupplierCategory =
+  | 'authorized_service'
+  | 'tire_supply'
+  | 'road_assistance'
+  | 'spare_parts'
+  | 'vehicle_procurement'
+  | 'inspection'
+  | 'insurance';
+
+export interface SupplierContract {
+  id: string;
+  supplierName: string;
+  taxNumber: string;
+  category: SupplierCategory;
+  categoryLabel: string;
+  startDate: string;
+  endDate: string;
+  status: 'Aktif' | 'İncelemede' | 'Süresi Dolmak Üzere' | 'Feshedildi' | 'Yenilendi';
+  daysUntilExpiry: number;
+  responsiblePerson: string;
+  responsibleDepartment: string;
+  contactEmail: string;
+  contactPhone: string;
+  slaCommitment: string;
+  discountRatePercent?: number;
+  paymentTermDays: number;
+  annualVolumeTRY: number;
+  terminationNoticeDays: number;
+  terminationConditions: string;
+  renewalConditions: string;
+  riskScore: 'A+' | 'A' | 'B' | 'C' | 'Kritik';
+  soficoSupplierId: string;
+  soficoSyncStatus: 'synced' | 'pending' | 'out_of_sync';
+  lastSoficoSync?: string;
+  paperworkFolderId: string;
+  paperworkDocCount: number;
+  missingDocuments: string[];
+  documents: Array<{
+    id: string;
+    title: string;
+    type: string;
+    uploadedAt: string;
+    expiryDate?: string;
+    fileName: string;
+    status: 'valid' | 'expiring_soon' | 'expired';
+  }>;
+  internalNotes: string[];
+  amendments: Array<{
+    id: string;
+    title: string;
+    date: string;
+    type: string;
+    status: string;
+  }>;
+}
+
+export type CLMStage =
+  | 'draft'
+  | 'internal_review'
+  | 'negotiation'
+  | 'signature_pending'
+  | 'active_in_force'
+  | 'addendum_in_review'
+  | 'renewal_pending'
+  | 'closed_archived';
+
+export interface ContractClauseTemplate {
+  id: string;
+  category: 'mileage' | 'insurance' | 'termination' | 'indexation' | 'maintenance' | 'general';
+  title: string;
+  code: string;
+  standardText: string;
+  riskLevel: 'standard' | 'moderate' | 'high_risk';
+  legalApprovedDate: string;
+  approvedBy: string;
+  applicableQuotationTypes?: Array<'excess_mileage' | 'early_return' | 'contract_renewal'>;
+}
+
+export interface ContractVaultDocument {
+  id: string;
+  contractId: string;
+  customerRef: string;
+  docType: 'master_contract' | 'delivery_protocol' | 'guarantee_letter' | 'signature_circular' | 'addendum' | 'insurance_policy';
+  title: string;
+  fileName: string;
+  uploadedAt: string;
+  fileSize: string;
+  status: 'valid' | 'expiring_soon' | 'expired' | 'missing';
+  expiryDate?: string;
+  signedDate?: string;
+  downloadUrl?: string;
+  notes?: string;
+}
+
+export interface ContractComplianceAlert {
+  id: string;
+  contractId: string;
+  customerTitle: string;
+  alertType: 'guarantee_expiry' | 'interim_km_audit' | 'option_deadline' | 'contract_expiry' | 'maintenance_sla' | 'indexation_notice';
+  partyType?: 'customer' | 'supplier' | 'internal';
+  dueDate: string;
+  daysRemaining: number;
+  severity: 'low' | 'warning' | 'critical';
+  title: string;
+  description: string;
+  actionRequired: string;
+  penaltyOrRisk?: string;
+  resolved: boolean;
 }
 
 export type DocumentCategory =
