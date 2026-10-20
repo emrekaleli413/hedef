@@ -385,31 +385,33 @@ export const CreditIntelligencePage: React.FC = () => {
             </div>
 
             {/* Financial Summary */}
-            <div className="border border-slate-200 rounded-lg p-3 space-y-2">
-              <span className="font-bold text-slate-800 uppercase tracking-wider text-[11px] block">
-                {selectedRecord.financialSummary.year} Mali Tablo Özeti (GİB Onaylı)
-              </span>
-              <div className="grid grid-cols-3 gap-3 text-xs">
-                <div className="p-2.5 bg-slate-50 rounded">
-                  <span className="text-slate-400 block text-[10px]">Yıllık Net Ciro</span>
-                  <span className="font-mono font-bold text-slate-900 text-sm">
-                    {selectedRecord.financialSummary.turnoverTRY.toLocaleString('tr-TR')} TL
-                  </span>
-                </div>
-                <div className="p-2.5 bg-slate-50 rounded">
-                  <span className="text-slate-400 block text-[10px]">Özkaynak Toplamı</span>
-                  <span className="font-mono font-bold text-slate-900 text-sm">
-                    {selectedRecord.financialSummary.equityTRY.toLocaleString('tr-TR')} TL
-                  </span>
-                </div>
-                <div className="p-2.5 bg-slate-50 rounded">
-                  <span className="text-slate-400 block text-[10px]">Net Dönem Karı</span>
-                  <span className={`font-mono font-bold text-sm ${selectedRecord.financialSummary.netProfitTRY >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
-                    {selectedRecord.financialSummary.netProfitTRY.toLocaleString('tr-TR')} TL
-                  </span>
+            {selectedRecord.financialSummary && (
+              <div className="border border-slate-200 rounded-lg p-3 space-y-2">
+                <span className="font-bold text-slate-800 uppercase tracking-wider text-[11px] block">
+                  {selectedRecord.financialSummary.year} Mali Tablo Özeti (GİB Onaylı)
+                </span>
+                <div className="grid grid-cols-3 gap-3 text-xs">
+                  <div className="p-2.5 bg-slate-50 rounded">
+                    <span className="text-slate-400 block text-[10px]">Yıllık Net Ciro</span>
+                    <span className="font-mono font-bold text-slate-900 text-sm">
+                      {selectedRecord.financialSummary.turnoverTRY.toLocaleString('tr-TR')} TL
+                    </span>
+                  </div>
+                  <div className="p-2.5 bg-slate-50 rounded">
+                    <span className="text-slate-400 block text-[10px]">Özkaynak Toplamı</span>
+                    <span className="font-mono font-bold text-slate-900 text-sm">
+                      {selectedRecord.financialSummary.equityTRY.toLocaleString('tr-TR')} TL
+                    </span>
+                  </div>
+                  <div className="p-2.5 bg-slate-50 rounded">
+                    <span className="text-slate-400 block text-[10px]">Net Dönem Karı</span>
+                    <span className={`font-mono font-bold text-sm ${selectedRecord.financialSummary.netProfitTRY >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      {selectedRecord.financialSummary.netProfitTRY.toLocaleString('tr-TR')} TL
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Collateral Recommendation */}
             <div className="p-3 bg-blue-50/60 border border-blue-200 rounded-lg space-y-1">

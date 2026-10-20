@@ -12,7 +12,9 @@ import {
   TrendingUp,
   AlertCircle,
   ArrowRight,
-  ExternalLink
+  ExternalLink,
+  Download,
+  Mail
 } from 'lucide-react';
 import { useSalesOps } from '../../context/SalesOpsContext';
 import { Quotation, QuotationStatus, QuotationLossReason } from '../../types';
@@ -20,6 +22,8 @@ import { StatusBadge } from '../common/StatusBadge';
 import { Modal } from '../common/Modal';
 import { AutomatedQuotationGeneratorModal } from '../modals/AutomatedQuotationGeneratorModal';
 import { QuotationDocumentViewModal } from '../modals/QuotationDocumentViewModal';
+import { downloadQuotationPDF } from '../../utils/pdfGenerator';
+import { SendApprovalEmailModal } from '../modals/SendApprovalEmailModal';
 
 interface QuotationPageProps {
   onOpenCreateQuoteModal: () => void;
@@ -53,6 +57,9 @@ export const QuotationPage: React.FC<QuotationPageProps> = ({
   // Reject modal state
   const [rejectQuoteId, setRejectQuoteId] = useState<string | null>(null);
   const [lossReason, setLossReason] = useState<QuotationLossReason>('Yüksek Fiyat');
+
+  // Email dispatcher modal state
+  const [emailDispatcherQuote, setEmailDispatcherQuote] = useState<{ quote: Quotation; mode: 'internal_approval' | 'customer_dispatch' } | null>(null);
 
   const filteredQuotes = quotations.filter(q => {
     if (searchQuery.trim()) {
@@ -261,18 +268,29 @@ export const QuotationPage: React.FC<QuotationPageProps> = ({
                       {quote.validityDate}
                     </td>
 
-                    <td className="py-2.5 px-3 text-right whitespace-nowrap space-x-2">
+                    <td className="py-2.5 px-3 text-right whitespace-nowrap space-x-1.5">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          downloadQuotationPDF(quote);
+                        }}
+                        className="text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-md font-semibold inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                        title="PDF olarak doğrudan indir"
+                      >
+                        <Download className="w-3 h-3" />
+                        <span>PDF</span>
+                      </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setViewDocumentQuote(quote);
                         }}
-                        className="text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded font-medium"
+                        className="text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded font-medium cursor-pointer"
                         title="Resmi teklif belgesi ve yazdırma önizlemesi"
                       >
-                        Resmi Belge / PDF
+                        Resmi Belge
                       </button>
-                      <span className="text-xs text-blue-600 font-semibold hover:underline">
+                      <span className="text-xs text-blue-600 font-semibold hover:underline cursor-pointer">
                         İncele →
                       </span>
                     </td>
@@ -357,41 +375,64 @@ export const QuotationPage: React.FC<QuotationPageProps> = ({
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => downloadQuotationPDF(selectedQuote)}
+                  className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-semibold rounded text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                  title="PDF olarak doğrudan indir"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>PDF İndir</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setEmailDispatcherQuote({ quote: selectedQuote, mode: 'internal_approval' })}
+                  className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                  title="Dahili onay komitesine e-posta ile ilet"
+                >
+                  <Mail className="w-3.5 h-3.5 text-blue-300" />
+                  <span>Onaya Gönder (Mail)</span>
+                </button>
+
                 {selectedQuote.status === 'Onay Bekliyor' && (
                   <button
+                    type="button"
                     onClick={() => updateQuotationStatus(selectedQuote.id, 'Onaylandı')}
-                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded text-xs flex items-center gap-1"
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded text-xs flex items-center gap-1 cursor-pointer"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>Teklifi Onayla</span>
                   </button>
                 )}
 
-                {(selectedQuote.status === 'Onaylandı' || selectedQuote.status === 'Onaylandı (Fast-Track)') && (
-                  <button
-                    onClick={() => updateQuotationStatus(selectedQuote.id, 'Gönderildi')}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded text-xs flex items-center gap-1"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Müşteriye İlet (PDF Gönder)</span>
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => setEmailDispatcherQuote({ quote: selectedQuote, mode: 'customer_dispatch' })}
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded text-xs flex items-center gap-1 cursor-pointer"
+                  title="Müşteriye resmi teklif PDF'ini e-posta ile ilet"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Müşteriye İlet (PDF Gönder)</span>
+                </button>
 
                 {selectedQuote.status === 'Gönderildi' && (
                   <>
                     <button
+                      type="button"
                       onClick={() => updateQuotationStatus(selectedQuote.id, 'Kabul Edildi')}
-                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded text-xs flex items-center gap-1"
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded text-xs flex items-center gap-1 cursor-pointer"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>Müşteri Kabul Etti</span>
                     </button>
                     <button
+                      type="button"
                       onClick={() => setRejectQuoteId(selectedQuote.id)}
-                      className="px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 font-medium rounded text-xs flex items-center gap-1"
+                      className="px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 font-medium rounded text-xs flex items-center gap-1 cursor-pointer"
                     >
                       <XCircle className="w-3.5 h-3.5" />
-                      <span>Reddedildi Olarak İşaretle</span>
+                      <span>Reddedildi</span>
                     </button>
                   </>
                 )}
@@ -548,6 +589,19 @@ export const QuotationPage: React.FC<QuotationPageProps> = ({
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* Send Approval / Customer Dispatch Email Modal */}
+      {emailDispatcherQuote && (
+        <SendApprovalEmailModal
+          isOpen={!!emailDispatcherQuote}
+          onClose={() => setEmailDispatcherQuote(null)}
+          quotation={emailDispatcherQuote.quote}
+          mode={emailDispatcherQuote.mode}
+          onSuccess={() => {
+            setEmailDispatcherQuote(null);
+          }}
+        />
       )}
     </div>
   );

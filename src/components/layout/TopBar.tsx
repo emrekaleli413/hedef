@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Bell,
   Plus,
-  Zap,
   Info,
   CheckCircle,
   AlertCircle,
@@ -25,7 +24,6 @@ export const TopBar: React.FC<TopBarProps> = ({
     activePage,
     notifications,
     dismissNotification,
-    runAllRulesEvaluation,
     portfolioMode,
     setPortfolioMode
   } = useSalesOps();
@@ -36,108 +34,97 @@ export const TopBar: React.FC<TopBarProps> = ({
   const getPageTitle = (page: string) => {
     switch (page) {
       case 'overview':
-        return 'Genel Bakış & Operasyonel Özet';
+        return 'Genel Bakış';
       case 'tasks':
-        return 'İş Kuyruğu & Görev Yönetimi';
+        return 'İş Kuyruğu';
       case 'quotations':
-        return 'Teklif & Zeyilname Yönetimi';
+        return 'Teklif Yönetimi';
       case 'contracts':
-        return 'Sözleşme Takibi & Proaktif Yenileme';
+        return 'Sözleşmeler';
       case 'documents':
-        return 'Evrak Kontrolü & Uyumluluk Matrisi';
+        return 'Evrak Kontrolü';
       case 'disputes':
-        return 'Fatura İtirazları & Mutabakat';
-      case 'automation':
-        return 'Otomasyon Kuralları & Süreç Motoru';
-      case 'analytics':
-        return 'Satış & Operasyon Analitiği';
-      case 'datasources':
-        return 'Kurumsal Veri Kaynakları & Entegrasyon';
-      case 'settings':
-        return 'Sistem Parametreleri & Ayarlar';
+        return 'Fatura İtirazları';
       case 'delivery':
-        return 'Teslimat & PDI Hazırlık Takibi';
+        return 'Teslimat Takibi';
       case 'credit':
         return portfolioMode === 'B2C'
-          ? 'Bireysel Findeks & TCKN İstihbaratı (Filomingo)'
-          : 'Kurumsal Finansal İstihbarat & KKB';
+          ? 'Bireysel İstihbarat & Findeks'
+          : 'Finansal İstihbarat & KKB';
       case 'prebilling':
-        return 'Toplu HGS & Ceza Ön Fatura Eşleştirici';
+        return 'HGS & Ceza Ön Fatura';
       case 'customerportal':
-        return 'B2B Müşteri Self-Servis Portalı';
+        return 'Müşteri Portalı';
+      case 'automation':
+        return 'Otomasyon Kuralları';
+      case 'analytics':
+        return 'Satış Analitiği';
+      case 'datasources':
+        return 'Veri Kaynakları';
+      case 'settings':
+        return 'Sistem Ayarları';
       default:
-        return 'Operasyon Merkezi';
+        return 'Operasyon Masası';
     }
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between gap-4 shrink-0 z-20">
-      {/* Zone 1: Current Page Title & Context */}
-      <div className="flex items-center gap-3 min-w-0">
-        <h1 className="text-base font-bold text-slate-900 tracking-tight whitespace-nowrap truncate">
+    <header className="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between gap-6 shrink-0 z-20">
+      {/* Zone 1: Clean Breadcrumb & Page Title */}
+      <div className="flex items-center gap-2 min-w-0">
+        <span className="text-xs text-slate-500 font-medium hidden sm:inline">
+          Operasyon /
+        </span>
+        <h1 className="text-sm font-bold text-slate-900 tracking-tight whitespace-nowrap truncate">
           {getPageTitle(activePage)}
         </h1>
-        <span className="hidden md:inline-flex items-center text-xs text-slate-500 font-mono">
-          · {portfolioMode === 'B2C' ? 'Filomingo B2C Modu' : 'Hedef Filo B2B Modu'}
-        </span>
       </div>
 
-      {/* Zone 2: Portfolio Mode Switcher (Hedef Filo B2B vs. Filomingo B2C) */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
+      {/* Zone 2: Streamlined Portfolio Mode Switcher (B2B vs B2C) */}
+      <div className="flex items-center gap-2">
+        <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
           <button
             onClick={() => setPortfolioMode('B2B')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
               portfolioMode === 'B2B'
-                ? 'bg-slate-900 text-white shadow-xs'
+                ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
-            title="Kurumsal Filo Kiralama (Hedef Filo Modeli: VKN, Bilanço, DBS, 10-100 Araç)"
+            title="Hedef Filo B2B Kurumsal Kiralama"
           >
             <Building2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">B2B Kurumsal</span>
-            <span className="text-[10px] opacity-75 font-mono">(Hedef Filo)</span>
+            <span>Hedef Filo B2B</span>
           </button>
           <button
             onClick={() => setPortfolioMode('B2C')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
               portfolioMode === 'B2C'
-                ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-xs'
+                ? 'bg-rose-600 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
-            title="Bireysel & KOBİ Online Kiralama (Filomingo Modeli: TCKN, Findeks, Kredi Kartı Provizyon, 1 Araç)"
+            title="Filomingo B2C Bireysel Kiralama"
           >
             <UserCheck className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">B2C Bireysel</span>
-            <span className="text-[10px] opacity-75 font-mono">(Filomingo)</span>
+            <span>Filomingo B2C</span>
           </button>
         </div>
-
-        <button
-          onClick={() => runAllRulesEvaluation()}
-          className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded text-xs font-medium transition-colors"
-          title="Tüm kuralları yeniden değerlendir"
-        >
-          <Zap className="w-3.5 h-3.5 text-blue-600" />
-          <span>Otomasyonu Tetikle</span>
-        </button>
       </div>
 
       {/* Zone 3: Actions & Notifications */}
-      <div className="flex items-center gap-3 shrink-0 relative">
+      <div className="flex items-center gap-2 shrink-0 relative">
         {/* Quick Action Dropdown */}
         <div className="relative">
           <button
             onClick={() => setShowActionMenu(!showActionMenu)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-semibold shadow-sm transition-colors whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors whitespace-nowrap cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             <span>Yeni Kayıt</span>
           </button>
 
           {showActionMenu && (
             <div
-              className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-slate-200 py-1 z-30"
+              className="absolute right-0 mt-1.5 w-44 bg-white rounded-lg shadow-xl border border-slate-200 py-1 z-30"
               onMouseLeave={() => setShowActionMenu(false)}
             >
               <button
@@ -145,20 +132,20 @@ export const TopBar: React.FC<TopBarProps> = ({
                   setShowActionMenu(false);
                   if (onOpenNewTaskModal) onOpenNewTaskModal();
                 }}
-                className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-2"
+                className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-2 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5 text-blue-600" />
-                <span>Yeni Görev Oluştur</span>
+                <span>Yeni Görev</span>
               </button>
               <button
                 onClick={() => {
                   setShowActionMenu(false);
                   if (onOpenNewQuoteModal) onOpenNewQuoteModal();
                 }}
-                className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-2"
+                className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-2 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Yeni Teklif Hazırla</span>
+                <span>Yeni Teklif</span>
               </button>
             </div>
           )}
@@ -168,7 +155,7 @@ export const TopBar: React.FC<TopBarProps> = ({
         <div className="relative">
           <button
             onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors"
+            className="relative p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
             aria-label="Bildirimler"
           >
             <Bell className="w-4 h-4" />
@@ -179,13 +166,13 @@ export const TopBar: React.FC<TopBarProps> = ({
 
           {/* Notifications Dropdown */}
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-xl border border-slate-200 py-2 z-30">
-              <div className="px-3 py-1.5 border-b border-slate-100 flex items-center justify-between">
+            <div className="absolute right-0 mt-1.5 w-80 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-30">
+              <div className="px-3.5 py-1.5 border-b border-slate-100 flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-900">
-                  Süreç Bildirimleri & Loglar
+                  Bildirimler
                 </span>
                 <span className="text-[11px] text-slate-500 font-mono">
-                  {notifications.length} bildirim
+                  {notifications.length}
                 </span>
               </div>
               <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
@@ -197,7 +184,7 @@ export const TopBar: React.FC<TopBarProps> = ({
                   notifications.map(n => (
                     <div
                       key={n.id}
-                      className="px-3 py-2 hover:bg-slate-50 flex items-start gap-2.5 text-xs"
+                      className="px-3.5 py-2 hover:bg-slate-50 flex items-start gap-2.5 text-xs"
                     >
                       {n.type === 'warning' ? (
                         <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
@@ -214,7 +201,7 @@ export const TopBar: React.FC<TopBarProps> = ({
                       </div>
                       <button
                         onClick={() => dismissNotification(n.id)}
-                        className="text-slate-400 hover:text-slate-600 p-0.5"
+                        className="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>

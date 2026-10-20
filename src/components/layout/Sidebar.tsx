@@ -23,7 +23,7 @@ interface NavItem {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: number;
-  badgeColor?: string;
+  isUrgent?: boolean;
 }
 
 interface NavSection {
@@ -52,106 +52,99 @@ export const Sidebar: React.FC = () => {
 
   const sections: NavSection[] = [
     {
-      title: 'Operasyonel Çalışma Masası',
+      title: 'SATIŞ & OPERASYON',
       items: [
         { id: 'overview', label: 'Genel Bakış', icon: LayoutDashboard },
         {
           id: 'tasks',
           label: 'İş Kuyruğu',
           icon: CheckSquare,
-          badge: totalOpenTasks,
-          badgeColor: 'bg-blue-600 text-white'
+          badge: totalOpenTasks
         },
-        { id: 'quotations', label: 'Teklif Yönetimi', icon: FileText },
+        { id: 'quotations', label: 'Teklifler', icon: FileText },
         {
           id: 'contracts',
-          label: 'Sözleşme ve Yenileme',
+          label: 'Sözleşmeler',
           icon: RefreshCw,
-          badge: upcomingRenewalsCount,
-          badgeColor: 'bg-amber-500 text-white'
+          badge: upcomingRenewalsCount
         },
         {
           id: 'documents',
-          label: 'Evrak Kontrolü',
+          label: 'Evraklar',
           icon: FolderCheck,
           badge: missingDocRiskScore > 20 ? 1 : undefined,
-          badgeColor: 'bg-rose-600 text-white'
-        },
-        {
-          id: 'disputes',
-          label: 'Fatura İtirazları',
-          icon: AlertTriangle,
-          badge: openDisputesCount,
-          badgeColor: 'bg-orange-500 text-white'
+          isUrgent: missingDocRiskScore > 20
         }
       ]
     },
     {
-      title: 'Otomasyon & İleri Süreçler',
+      title: 'FİLO & FİNANS',
       items: [
         {
           id: 'delivery',
-          label: 'Teslimat & Hazırlık',
+          label: 'Teslimat',
           icon: Truck,
-          badge: pendingDeliveries,
-          badgeColor: 'bg-indigo-600 text-white'
+          badge: pendingDeliveries
         },
         {
           id: 'credit',
-          label: 'Finansal İstihbarat & KKB',
+          label: 'Kredi & KKB',
           icon: ShieldCheck,
-          badge: pendingCredit > 0 ? pendingCredit : undefined,
-          badgeColor: 'bg-cyan-600 text-white'
+          badge: pendingCredit > 0 ? pendingCredit : undefined
         },
         {
           id: 'prebilling',
-          label: 'HGS & Ceza Ön Fatura',
+          label: 'HGS & Ceza',
           icon: Receipt,
-          badge: pendingExpenses > 0 ? pendingExpenses : undefined,
-          badgeColor: 'bg-amber-600 text-white'
+          badge: pendingExpenses > 0 ? pendingExpenses : undefined
+        },
+        {
+          id: 'disputes',
+          label: 'İtirazlar',
+          icon: AlertTriangle,
+          badge: openDisputesCount > 0 ? openDisputesCount : undefined
         },
         {
           id: 'customerportal',
-          label: 'B2B Müşteri Portalı',
+          label: 'Müşteri Portalı',
           icon: Globe,
-          badge: pendingPortalReqs > 0 ? pendingPortalReqs : undefined,
-          badgeColor: 'bg-emerald-600 text-white'
-        },
-        { id: 'automation', label: 'Otomasyon Kuralları', icon: Zap }
+          badge: pendingPortalReqs > 0 ? pendingPortalReqs : undefined
+        }
       ]
     },
     {
-      title: 'Analitik & Sistem',
+      title: 'SİSTEM & ANALİTİK',
       items: [
-        { id: 'analytics', label: 'Satış Analitiği', icon: BarChart3 },
-        { id: 'datasources', label: 'Veri Kaynakları', icon: Database },
+        { id: 'analytics', label: 'Analitik', icon: BarChart3 },
+        { id: 'automation', label: 'Otomasyon', icon: Zap },
+        { id: 'datasources', label: 'Entegrasyonlar', icon: Database },
         { id: 'settings', label: 'Ayarlar', icon: Settings }
       ]
     }
   ];
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 border-r border-slate-800 select-none">
+    <aside className="w-60 bg-slate-900 text-slate-300 flex flex-col shrink-0 border-r border-slate-800 select-none">
       {/* Brand Header */}
-      <div className="h-16 px-5 flex items-center gap-3 border-b border-slate-800 shrink-0">
-        <div className="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-base shadow-sm">
-          <Car className="w-5 h-5 text-white" />
+      <div className="h-16 px-4 flex items-center gap-3 border-b border-slate-800 shrink-0">
+        <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-xs">
+          <Car className="w-4 h-4 text-white" />
         </div>
-        <div className="flex flex-col">
-          <span className="font-bold text-white text-base tracking-tight leading-none">
-            SalesOps Intelligence
+        <div className="flex flex-col min-w-0">
+          <span className="font-bold text-white text-sm tracking-tight leading-tight truncate">
+            SalesOps
           </span>
-          <span className="text-[11px] text-slate-400 mt-1 font-mono tracking-tight">
-            Filo Satış Operasyonları
+          <span className="text-[11px] text-slate-400 truncate">
+            Filo Operasyonları
           </span>
         </div>
       </div>
 
       {/* Navigation List */}
-      <nav className="flex-1 px-3 py-3 space-y-4 overflow-y-auto">
+      <nav className="flex-1 px-2.5 py-3 space-y-4 overflow-y-auto">
         {sections.map(section => (
           <div key={section.title} className="space-y-0.5">
-            <div className="px-3 pb-1 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+            <div className="px-2.5 pb-1 text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
               {section.title}
             </div>
             {section.items.map(item => {
@@ -161,10 +154,10 @@ export const Sidebar: React.FC = () => {
                 <button
                   key={item.id}
                   onClick={() => setActivePage(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  className={`w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer ${
                     isActive
-                      ? 'bg-blue-600 text-white shadow-sm font-semibold'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                      ? 'bg-blue-600 text-white font-semibold shadow-xs'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 truncate">
@@ -177,8 +170,12 @@ export const Sidebar: React.FC = () => {
                   </div>
                   {item.badge !== undefined && item.badge > 0 && (
                     <span
-                      className={`ml-2 px-1.5 py-0.2 text-[10px] font-mono rounded font-semibold ${
-                        item.badgeColor || 'bg-slate-700 text-slate-200'
+                      className={`ml-2 px-1.5 py-0.2 text-[10px] font-mono rounded font-semibold tabular-nums ${
+                        item.isUrgent
+                          ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                          : isActive
+                          ? 'bg-blue-700 text-blue-100'
+                          : 'bg-slate-800 text-slate-400'
                       }`}
                     >
                       {item.badge}
@@ -191,20 +188,16 @@ export const Sidebar: React.FC = () => {
         ))}
       </nav>
 
-      {/* User profile & Demo mode indicator */}
-      <div className="p-3 border-t border-slate-800 bg-slate-950/60">
-        <div className="flex items-center gap-3 px-2 py-1.5">
-          <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
+      {/* Clean User Profile */}
+      <div className="p-3 border-t border-slate-800/80 bg-slate-950/40">
+        <div className="flex items-center gap-2.5 px-1 py-1">
+          <div className="w-7 h-7 rounded-full bg-slate-800 border border-slate-700 text-slate-200 flex items-center justify-center font-bold text-xs shrink-0">
             DY
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xs font-semibold text-white truncate">Deniz Yılmaz</div>
-            <div className="text-[11px] text-slate-400 truncate">Kıdemli Satış Destek</div>
+            <div className="text-[10px] text-slate-400 truncate">Satış Destek</div>
           </div>
-        </div>
-        <div className="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between px-2 text-[11px] text-slate-400">
-          <span>Demo Çalışma Alanı</span>
-          <span className="text-emerald-400 font-mono text-[10px]">v2.4 Aktif</span>
         </div>
       </div>
     </aside>

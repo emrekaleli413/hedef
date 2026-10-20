@@ -18,6 +18,7 @@ import { PreBillingReconciliationPage } from './components/pages/PreBillingRecon
 import { CustomerPortalPage } from './components/pages/CustomerPortalPage';
 import { CreateTaskModal } from './components/modals/CreateTaskModal';
 import { AutomatedQuotationGeneratorModal } from './components/modals/AutomatedQuotationGeneratorModal';
+import { SalesOpsChatbot } from './components/common/SalesOpsChatbot';
 
 const AppContent: React.FC = () => {
   const { activePage } = useSalesOps();
@@ -104,6 +105,12 @@ const AppContent: React.FC = () => {
       <AutomatedQuotationGeneratorModal
         isOpen={isNewQuoteOpen}
         onClose={() => setIsNewQuoteOpen(false)}
+      />
+
+      {/* Persistent Bottom-Right Guidance & Process Chatbot */}
+      <SalesOpsChatbot
+        onOpenNewTask={() => setIsNewTaskOpen(true)}
+        onOpenNewQuote={() => setIsNewQuoteOpen(true)}
       />
     </div>
   );

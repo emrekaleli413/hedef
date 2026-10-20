@@ -15,11 +15,15 @@ import {
   Sliders,
   ShieldAlert,
   Info,
-  Check
+  Check,
+  Download,
+  Mail
 } from 'lucide-react';
 import { useSalesOps } from '../../context/SalesOpsContext';
-import { Contract, QuotationType, QuotationStatus, QuotationCalculationDetails } from '../../types';
+import { Contract, Quotation, QuotationType, QuotationStatus, QuotationCalculationDetails } from '../../types';
 import { Modal } from '../common/Modal';
+import { downloadQuotationPDF, triggerPrintWindow } from '../../utils/pdfGenerator';
+import { SendApprovalEmailModal } from './SendApprovalEmailModal';
 
 interface AutomatedQuotationGeneratorModalProps {
   isOpen: boolean;
@@ -295,9 +299,42 @@ export const AutomatedQuotationGeneratorModal: React.FC<AutomatedQuotationGenera
     setCurrentStep('preview_document');
   };
 
+  const [emailQuote, setEmailQuote] = useState<Quotation | null>(null);
+
+  // Helper to build a provisional Quotation object for immediate preview/PDF download
+  const currentProvisionalQuote: Quotation = useMemo(() => {
+    const vCount = selectedContract?.vehicleCount || 1;
+    const monthlyRentPerVehicle =
+      selectedType === 'Sözleşme Yenileme'
+        ? (selectedContract ? (selectedContract.monthlyRentAmount / vCount) * (1 + renewalAdjustmentPercent / 100) : 25000)
+        : calculationDetails.subtotalTRY;
+    return {
+      id: generatedRefId || 'TKF-2026-YN-101',
+      customerRef: selectedContract?.customerRef || 'Kurumsal Müşteri',
+      customerCode: selectedContract?.customerCode || 'CUST-100',
+      quotationType: selectedType,
+      vehicleCount: vCount,
+      vehicleModel: selectedContract?.vehicleModel || 'Renault Megane Sedan 1.3 TCe Touch EDC',
+      termMonths: selectedType === 'Sözleşme Yenileme' ? renewalDurationMonths : 12,
+      annualKm: selectedContract ? selectedContract.contractLimitKm / (selectedContract.daysUntilRenewal > 365 ? 3 : 2) : 25000,
+      monthlyRentPerVehicle,
+      totalMonthlyAmount: selectedType === 'Sözleşme Yenileme' ? monthlyRentPerVehicle * vCount : calculationDetails.grandTotalTRY,
+      grossMarginPercent: 14.5,
+      customerCreditScore: 'Düşük Risk / A+',
+      owner: assignedOwner,
+      status: 'Onay Bekliyor',
+      createdAt: new Date().toISOString().split('T')[0],
+      lastUpdatedAt: new Date().toISOString().split('T')[0],
+      validityDate: new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0],
+      notes: quoteNotes,
+      versions: [],
+      calculationDetails
+    };
+  }, [selectedContract, selectedType, renewalAdjustmentPercent, renewalDurationMonths, calculationDetails, generatedRefId, assignedOwner, quoteNotes]);
+
   // Final Action: Save as Draft or Submit for Approval
-  const handleSaveQuotation = (finalStatus: QuotationStatus) => {
-    if (!selectedContract) return;
+  const handleSaveQuotation = (finalStatus: QuotationStatus): Quotation | null => {
+    if (!selectedContract) return null;
 
     const vehicleCount = selectedContract.vehicleCount;
     const monthlyRentPerVehicle =
@@ -305,7 +342,7 @@ export const AutomatedQuotationGeneratorModal: React.FC<AutomatedQuotationGenera
         ? (selectedContract.monthlyRentAmount / vehicleCount) * (1 + renewalAdjustmentPercent / 100)
         : calculationDetails.subtotalTRY;
 
-    createQuotation({
+    const created = createQuotation({
       customerRef: selectedContract.customerRef,
       customerCode: selectedContract.customerCode,
       quotationType: selectedType,
@@ -327,15 +364,27 @@ export const AutomatedQuotationGeneratorModal: React.FC<AutomatedQuotationGenera
       renewalAdjustmentPercent: selectedType === 'Sözleşme Yenileme' ? renewalAdjustmentPercent : undefined
     });
 
-    onClose();
+    return created;
+  };
+
+  const handleDownloadPDF = () => {
+    downloadQuotationPDF(currentProvisionalQuote);
   };
 
   const handlePrint = () => {
-    window.print();
+    triggerPrintWindow('quotation-document-printable');
+  };
+
+  const handleSendForApproval = () => {
+    const saved = handleSaveQuotation('Onay Bekliyor');
+    if (saved) {
+      setEmailQuote(saved);
+    }
   };
 
   return (
-    <Modal
+    <>
+      <Modal
       isOpen={isOpen}
       onClose={onClose}
       title="Otomatik Teklif & Zeyilname Motoru"
@@ -835,28 +884,42 @@ export const AutomatedQuotationGeneratorModal: React.FC<AutomatedQuotationGenera
                   <span>Girdileri Düzenle</span>
                 </button>
                 <button
+                  type="button"
+                  onClick={handleDownloadPDF}
+                  className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>PDF İndir</span>
+                </button>
+                <button
+                  type="button"
                   onClick={handlePrint}
-                  className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 rounded font-semibold text-xs flex items-center gap-1"
+                  className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-lg font-semibold text-xs flex items-center gap-1 cursor-pointer"
                 >
                   <Printer className="w-3.5 h-3.5 text-slate-600" />
-                  <span>Yazdır / PDF Olarak Kaydet</span>
+                  <span>Yazdır</span>
                 </button>
               </div>
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => handleSaveQuotation('Taslak')}
-                  className="px-3.5 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded font-semibold text-xs flex items-center gap-1.5 transition-colors"
+                  type="button"
+                  onClick={() => {
+                    handleSaveQuotation('Taslak');
+                    onClose();
+                  }}
+                  className="px-3.5 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded-lg font-semibold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Save className="w-3.5 h-3.5" />
-                  <span>Taslak Olarak Kaydet</span>
+                  <span>Taslak Kaydet</span>
                 </button>
                 <button
-                  onClick={() => handleSaveQuotation('Onay Bekliyor')}
-                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold text-xs flex items-center gap-1.5 transition-colors shadow-2xs"
+                  type="button"
+                  onClick={handleSendForApproval}
+                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-xs flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
                 >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Dahili Onaya Gönder</span>
+                  <Mail className="w-3.5 h-3.5 text-blue-200" />
+                  <span>Onaya Gönder (Mail ile İlet)</span>
                 </button>
               </div>
             </div>
@@ -1064,19 +1127,30 @@ export const AutomatedQuotationGeneratorModal: React.FC<AutomatedQuotationGenera
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => handleSaveQuotation('Taslak')}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded text-xs font-semibold flex items-center gap-1.5"
+                  onClick={handleDownloadPDF}
+                  className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
                 >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>Taslak Olarak Kaydet</span>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>PDF İndir</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleSaveQuotation('Onay Bekliyor')}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-semibold flex items-center gap-1.5 shadow-2xs"
+                  onClick={() => {
+                    handleSaveQuotation('Taslak');
+                    onClose();
+                  }}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Dahili Onaya Gönder</span>
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Taslak Kaydet</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSendForApproval}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5 text-blue-200" />
+                  <span>Onaya Gönder (Mail ile İlet)</span>
                 </button>
               </div>
             </div>
@@ -1084,5 +1158,19 @@ export const AutomatedQuotationGeneratorModal: React.FC<AutomatedQuotationGenera
         )}
       </div>
     </Modal>
+
+    {/* Email Approval Dispatch Modal */}
+    {emailQuote && (
+      <SendApprovalEmailModal
+        isOpen={!!emailQuote}
+        onClose={() => {
+          setEmailQuote(null);
+          onClose();
+        }}
+        quotation={emailQuote}
+        mode="internal_approval"
+      />
+    )}
+  </>
   );
 };

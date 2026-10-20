@@ -123,6 +123,13 @@ export interface QuotationCalculationDetails {
   vatAmountTRY: number;
   grandTotalTRY: number;
   assumptions: string[];
+  costBreakdown?: {
+    vehicleFinancingDepreciation?: number;
+    insuranceAndCasko?: number;
+    maintenanceAndWear?: number;
+    tyreManagement?: number;
+    motorVehicleTaxMTV?: number;
+  };
 }
 
 export interface Quotation {
